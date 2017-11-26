@@ -4,6 +4,9 @@ Arc is built with performance in mind to ensure your server wont be laggy.
 
 Arc is nowhere near finished, its currently undergoing an entire rewrite.
 
+# Some notes
+Arc requires you have java 8.
+
 # Dependencies
 
 Arc uses [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) for packet level checks. Please download the latest version of ProtocolLib and add it to your server.
