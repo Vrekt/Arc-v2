@@ -2,6 +2,7 @@ package me.vrekt.arc.listener;
 
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
+import me.vrekt.arc.data.combat.FightData;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ public class PlayerListener implements Listener {
 
         // clear check data.
         MovingData.removeData(player);
+        FightData.removeData(player);
 
     }
 
@@ -39,7 +41,7 @@ public class PlayerListener implements Listener {
         MovingData data = MovingData.getData(player);
 
         // exempt on join for morepackets.
-        Arc.getExemptionManager().addExemption(player, CheckType.MOREPACKETS, 40);
+        Arc.getExemptionManager().addExemption(player, CheckType.MOREPACKETS, 60);
 
         data.setOnGround(LocationHelper.isOnGround(player.getLocation(), 0));
         data.setCurrentLocation(player.getLocation());

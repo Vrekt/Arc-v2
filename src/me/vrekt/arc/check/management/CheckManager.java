@@ -7,6 +7,7 @@ import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
+import me.vrekt.arc.check.moving.Speed;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -64,6 +65,7 @@ public class CheckManager {
         CHECKS.add(new MorePackets());
         CHECKS.add(new NoFall());
         CHECKS.add(new Regeneration());
+        CHECKS.add(new Speed());
     }
 
     /**

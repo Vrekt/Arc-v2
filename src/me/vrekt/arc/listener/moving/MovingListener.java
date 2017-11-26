@@ -3,6 +3,7 @@ package me.vrekt.arc.listener.moving;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.NoFall;
+import me.vrekt.arc.check.moving.Speed;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.LocationHelper;
@@ -19,6 +20,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class MovingListener extends BukkitRunnable implements Listener, ACheckListener {
     private final Flight FLIGHT = (Flight) CHECK_MANAGER.getCheck(CheckType.FLIGHT);
     private final NoFall NO_FALL = (NoFall) CHECK_MANAGER.getCheck(CheckType.NOFALL);
+
+    private final Speed SPEED = (Speed) CHECK_MANAGER.getCheck(CheckType.SPEED);
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(PlayerMoveEvent event) {
@@ -97,6 +100,8 @@ public class MovingListener extends BukkitRunnable implements Listener, ACheckLi
             if (canCheckNoFall) {
                 NO_FALL.check(player, data);
             }
+
+            SPEED.check(data, player);
 
         }
 
