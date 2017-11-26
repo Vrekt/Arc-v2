@@ -1,0 +1,14 @@
+main: me.vrekt.arc.Arc
+name: Arc
+version: 2.0
+depend: [ProtocolLib]
+
+permissions:
+  arc.violations:
+    description: Allows a player to see if another player fails a check.
+  arc.bypass:
+    description: Allows a player to bypass all checks.
+  arc.debug.notify:
+    description: Allows a player to see what another player fails and the debug info with it.
+  arc.administrator:
+    description: Allows a player to manage Arc.
