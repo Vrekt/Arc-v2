@@ -3,6 +3,7 @@ package me.vrekt.arc.check.management;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
+import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
@@ -62,6 +63,7 @@ public class CheckManager {
         CHECKS.add(new Flight());
         CHECKS.add(new MorePackets());
         CHECKS.add(new NoFall());
+        CHECKS.add(new Regeneration());
     }
 
     /**

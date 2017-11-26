@@ -6,12 +6,12 @@ public enum CheckType {
     SPEED(CheckCategory.MOVEMENT, "Speed"),
     NOFALL(CheckCategory.MOVEMENT, "NoFall"),
     MOREPACKETS(CheckCategory.MOVEMENT, "MorePackets"),
-    CRITICALS(CheckCategory.COMBAT, "Criticals"),
-    DIRECTION(CheckCategory.COMBAT, "Direction"),
-    IMPROBABLE(CheckCategory.COMBAT, "Combat Improbable"),
-    NOSWING(CheckCategory.COMBAT, "NoSwing"),
-    REACH(CheckCategory.COMBAT, "Reach"),
-    REGENERATION(CheckCategory.COMBAT, "Regeneration");
+    CRITICALS(CheckCategory.FIGHT, "Criticals"),
+    DIRECTION(CheckCategory.FIGHT, "Direction"),
+    IMPROBABLE(CheckCategory.FIGHT, "Combat Improbable"),
+    NOSWING(CheckCategory.FIGHT, "NoSwing"),
+    REACH(CheckCategory.FIGHT, "Reach"),
+    REGENERATION(CheckCategory.FIGHT, "Regeneration");
 
     private CheckCategory cat;
     private String checkName;

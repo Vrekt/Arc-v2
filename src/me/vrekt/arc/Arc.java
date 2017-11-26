@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import me.vrekt.arc.check.management.CheckManager;
 import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
+import me.vrekt.arc.listener.combat.FightListener;
 import me.vrekt.arc.listener.moving.MovingListener;
 import me.vrekt.arc.listener.packet.PacketListener;
 import me.vrekt.arc.violation.ViolationHandler;
@@ -40,9 +41,11 @@ public class Arc extends JavaPlugin {
 
         getLogger().info("Registering listeners...");
         MovingListener movingListener = new MovingListener();
-        getServer().getPluginManager().registerEvents(movingListener, this);
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         movingListener.runTaskTimer(this, 0, 10);
+
+        getServer().getPluginManager().registerEvents(movingListener, this);
+        getServer().getPluginManager().registerEvents(new FightListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 
         new PacketListener().startListening(this, ProtocolLibrary.getProtocolManager());
 
