@@ -6,6 +6,7 @@ import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
 import me.vrekt.arc.listener.combat.FightListener;
 import me.vrekt.arc.listener.compatibility.Moving17;
+import me.vrekt.arc.listener.inventory.InventoryListener;
 import me.vrekt.arc.listener.moving.MovingListener;
 import me.vrekt.arc.listener.packet.PacketListener;
 import me.vrekt.arc.violation.ViolationHandler;
@@ -61,6 +62,7 @@ public class Arc extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new FightListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         // TODO: New PacketListener might be needed for 1.7 (not sure).
         new PacketListener().startListening(this, ProtocolLibrary.getProtocolManager());
 

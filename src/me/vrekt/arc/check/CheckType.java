@@ -11,7 +11,8 @@ public enum CheckType {
     IMPROBABLE(CheckCategory.FIGHT, "Combat Improbable"),
     NOSWING(CheckCategory.FIGHT, "NoSwing"),
     REACH(CheckCategory.FIGHT, "Reach"),
-    REGENERATION(CheckCategory.FIGHT, "Regeneration");
+    REGENERATION(CheckCategory.FIGHT, "Regeneration"),
+    FASTCONSUME(CheckCategory.INVENTORY, "Fast Consume");
 
     private CheckCategory cat;
     private String checkName;

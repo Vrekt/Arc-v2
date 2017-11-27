@@ -35,8 +35,7 @@ public class ExemptionManager {
         }
 
         // iterate through the array of checks that need to be exempted for if we are flying.
-        for (int i = 0; i < EXEMPT_BECAUSE_FLYING.length; i++) {
-            CheckType element = EXEMPT_BECAUSE_FLYING[i];
+        for (CheckType element : EXEMPT_BECAUSE_FLYING) {
             if (!(element.equals(check))) {
                 continue;
             }
