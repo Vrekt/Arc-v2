@@ -8,6 +8,7 @@ import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
 import me.vrekt.arc.check.moving.Speed;
+import me.vrekt.arc.check.moving.compatibility.Flight17;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -61,11 +62,17 @@ public class CheckManager {
      * Add all the checks to the map.
      */
     public void initializeAllChecks() {
-        CHECKS.add(new Flight());
+        // Add 1.7 compat checks (if needed)
+        if (Arc.COMPATIBILITY) {
+            CHECKS.add(new Flight17());
+        } else {
+            CHECKS.add(new Flight());
+        }
         CHECKS.add(new MorePackets());
         CHECKS.add(new NoFall());
         CHECKS.add(new Regeneration());
         CHECKS.add(new Speed());
+
     }
 
     /**
@@ -124,7 +131,7 @@ public class CheckManager {
      * @return if we can check the player for this check.
      */
     public boolean canCheckPlayer(Player player, CheckType check) {
-        return !Arc.getExemptionManager().isPlayerExempt(player, check);
+        return !Arc.getExemptionManager().isPlayerExempt(player, check) && isCheckEnabled(check);
     }
 
     /**

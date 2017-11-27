@@ -5,6 +5,7 @@ import me.vrekt.arc.check.management.CheckManager;
 import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
 import me.vrekt.arc.listener.combat.FightListener;
+import me.vrekt.arc.listener.compatibility.Moving17;
 import me.vrekt.arc.listener.moving.MovingListener;
 import me.vrekt.arc.listener.packet.PacketListener;
 import me.vrekt.arc.violation.ViolationHandler;
@@ -17,6 +18,7 @@ import java.io.File;
 
 public class Arc extends JavaPlugin {
     private static Plugin thisPlugin;
+    public static boolean COMPATIBILITY = false;
 
     private static CheckManager checkManager;
 
@@ -39,14 +41,27 @@ public class Arc extends JavaPlugin {
         checkManager = new CheckManager(getConfig());
         checkManager.initializeAllChecks();
 
-        getLogger().info("Registering listeners...");
-        MovingListener movingListener = new MovingListener();
-        movingListener.runTaskTimer(this, 0, 10);
+        getLogger().info("Checking spigot version....");
 
-        getServer().getPluginManager().registerEvents(movingListener, this);
+        if (Bukkit.getBukkitVersion().contains("1.7")) {
+            getLogger().info("Switching to 1.7 compat checks and listeners.");
+            COMPATIBILITY = true;
+        }
+
+        if (COMPATIBILITY) {
+            Moving17 movingListener = new Moving17();
+            movingListener.runTaskTimer(this, 0, 10);
+            getServer().getPluginManager().registerEvents(movingListener, this);
+        } else {
+            getLogger().info("Registering listeners...");
+            MovingListener movingListener = new MovingListener();
+            movingListener.runTaskTimer(this, 0, 10);
+            getServer().getPluginManager().registerEvents(movingListener, this);
+        }
+
         getServer().getPluginManager().registerEvents(new FightListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-
+        // TODO: New PacketListener might be needed for 1.7 (not sure).
         new PacketListener().startListening(this, ProtocolLibrary.getProtocolManager());
 
     }
