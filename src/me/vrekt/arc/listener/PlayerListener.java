@@ -3,6 +3,7 @@ package me.vrekt.arc.listener;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.combat.FightData;
+import me.vrekt.arc.data.inventory.InventoryData;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class PlayerListener implements Listener {
         // clear check data.
         MovingData.removeData(player);
         FightData.removeData(player);
+        InventoryData.removeData(player);
 
     }
 
@@ -46,7 +48,6 @@ public class PlayerListener implements Listener {
         data.setOnGround(LocationHelper.isOnGround(player.getLocation(), 0));
         data.setCurrentLocation(player.getLocation());
         data.setGroundLocation(player.getLocation());
-
 
     }
 

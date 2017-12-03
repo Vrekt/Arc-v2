@@ -76,7 +76,6 @@ public class PacketListener implements ACheckListener {
                 }
 
                 // update moving data.
-                Location location = player.getLocation();
                 if (check(player, data)) {
                     event.setCancelled(true);
                 }
@@ -95,8 +94,8 @@ public class PacketListener implements ACheckListener {
     /**
      * Checks MorePackets and updates/resets data.
      *
-     * @param player
-     * @param data
+     * @param player the player
+     * @param data   the MovingData
      * @return true if we should cancel.
      */
     private boolean updateAndCheck(Player player, MovingData data) {
@@ -106,12 +105,21 @@ public class PacketListener implements ACheckListener {
         }
 
         boolean canCheckMorePackets = Arc.getCheckManager().canCheckPlayer(player, CheckType.MOREPACKETS);
+
+        // fix for MorePackets flagging when logging in, even when exempted.
+        if (!canCheckMorePackets) {
+            data.setMovingPackets(0);
+            data.setLastPacketUpdate(System.currentTimeMillis());
+            return false;
+        }
+
         long time = System.currentTimeMillis() - data.getLastPacketUpdate();
         // check if its been more than a second.
-        if (time >= 1000 && canCheckMorePackets) {
+        if (time >= 1000) {
             boolean check = MORE_PACKETS.check(player, data);
             data.setMovingPackets(0);
             data.setLastPacketUpdate(System.currentTimeMillis());
+
             if (check) {
                 return true;
             } else {
@@ -123,8 +131,14 @@ public class PacketListener implements ACheckListener {
         return false;
     }
 
+    /**
+     * Checks Flight and updates/resets data.
+     *
+     * @param player the player
+     * @param data   the MovingData
+     * @return true if we should cancel.
+     */
     private boolean check(Player player, MovingData data) {
-
         boolean compatibility = Arc.COMPATIBILITY;
 
         CheckResult result = new CheckResult();
@@ -196,6 +210,7 @@ public class PacketListener implements ACheckListener {
         if (hasMovedByBlock) {
             result.reset();
             if (canCheckFlight) {
+                // check based on compatibility
                 if (compatibility) {
                     result.set(FLIGHT_17.runBlockChecks(player, data));
                 } else {
@@ -207,7 +222,6 @@ public class PacketListener implements ACheckListener {
             if (canCheckNoFall) {
                 NO_FALL.check(player, data);
             }
-
             //SPEED.check(player, data);
 
         }
