@@ -102,7 +102,6 @@ public class Flight extends Check {
         return result.failed();
     }
 
-
     public boolean check(Player player, MovingData data) {
         result.reset();
 

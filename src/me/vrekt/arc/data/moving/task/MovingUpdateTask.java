@@ -1,4 +1,4 @@
-package me.vrekt.arc.listener.moving;
+package me.vrekt.arc.data.moving.task;
 
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.moving.Flight;
@@ -10,7 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class MovingListener extends BukkitRunnable implements ACheckListener {
+public class MovingUpdateTask extends BukkitRunnable implements ACheckListener {
     private final Flight FLIGHT = (Flight) CHECK_MANAGER.getCheck(CheckType.FLIGHT);
 
     @Override
@@ -27,15 +27,14 @@ public class MovingListener extends BukkitRunnable implements ACheckListener {
                 continue;
             }
 
-
             // update data.
             if (!data.isOnGround()) {
                 // update air time.
                 int airTicks = data.getAirTicks();
-                data.setAirTicks(airTicks + 10);
+                data.setAirTicks(airTicks >= 100 ? 100 : airTicks + 10);
 
                 long time = System.currentTimeMillis() - data.getLastMovingUpdate();
-                if (time >= 500) {
+                if (time >= 500 && data.getAirTicks() >= 40) {
                     data.setLastMovingUpdate(System.currentTimeMillis());
                     Location from = data.getCurrentLocation();
                     // make sure we have a "previous" location.
@@ -63,13 +62,13 @@ public class MovingListener extends BukkitRunnable implements ACheckListener {
                     data.setAscending(ascending);
                     data.setDescending(descending);
 
-                    // Haven't moved yet, lets check.
+                    // Haven't moved yet, lets check, we shouldn't need the compat flight here.
                     FLIGHT.hoverCheck(player, data);
-
                 }
             }
 
         }
 
     }
+
 }

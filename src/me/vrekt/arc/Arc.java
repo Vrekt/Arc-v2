@@ -2,12 +2,11 @@ package me.vrekt.arc;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import me.vrekt.arc.check.management.CheckManager;
+import me.vrekt.arc.data.moving.task.MovingUpdateTask;
 import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
 import me.vrekt.arc.listener.combat.FightListener;
-import me.vrekt.arc.listener.compatibility.Moving17;
 import me.vrekt.arc.listener.inventory.InventoryListener;
-import me.vrekt.arc.listener.moving.MovingListener;
 import me.vrekt.arc.listener.packet.PacketListener;
 import me.vrekt.arc.violation.ViolationHandler;
 import org.bukkit.Bukkit;
@@ -49,15 +48,7 @@ public class Arc extends JavaPlugin {
             COMPATIBILITY = true;
         }
 
-        if (COMPATIBILITY) {
-            Moving17 movingListener = new Moving17();
-            movingListener.runTaskTimer(this, 0, 10);
-        } else {
-            getLogger().info("Registering listeners...");
-            MovingListener movingListener = new MovingListener();
-            movingListener.runTaskTimer(this, 0, 10);
-        }
-
+        new MovingUpdateTask().runTaskTimer(this, 0, 10);
         getServer().getPluginManager().registerEvents(new FightListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);

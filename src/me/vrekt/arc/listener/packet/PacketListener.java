@@ -12,6 +12,7 @@ import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
 import me.vrekt.arc.check.moving.Speed;
+import me.vrekt.arc.check.moving.compatibility.Flight17;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.LocationHelper;
@@ -20,11 +21,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import packetwrapper.WrapperPlayClientFlying;
+import packetwrapper.WrapperPlayClientPosition;
 import packetwrapper.WrapperPlayClientPositionLook;
 
 public class PacketListener implements ACheckListener {
     private final MorePackets MORE_PACKETS = (MorePackets) Arc.getCheckManager().getCheck(CheckType.MOREPACKETS);
     private final Flight FLIGHT = (Flight) CHECK_MANAGER.getCheck(CheckType.FLIGHT);
+    private final Flight17 FLIGHT_17 = (Flight17) CHECK_MANAGER.getCheck(CheckType.FLIGHT_17);
+
     private final NoFall NO_FALL = (NoFall) CHECK_MANAGER.getCheck(CheckType.NOFALL);
     private final Speed SPEED = (Speed) CHECK_MANAGER.getCheck(CheckType.SPEED);
 
@@ -63,8 +67,13 @@ public class PacketListener implements ACheckListener {
                 }
 
                 // Update ground info.
-                WrapperPlayClientPositionLook position = new WrapperPlayClientPositionLook(event.getPacket());
-                data.setClientOnGround(position.getOnGround());
+                if (event.getPacket().getType().equals(PacketType.Play.Client.POSITION)) {
+                    WrapperPlayClientPosition position = new WrapperPlayClientPosition(event.getPacket());
+                    data.setClientOnGround(position.getOnGround());
+                } else {
+                    WrapperPlayClientPositionLook position = new WrapperPlayClientPositionLook(event.getPacket());
+                    data.setClientOnGround(position.getOnGround());
+                }
 
                 // update moving data.
                 Location location = player.getLocation();
@@ -115,6 +124,9 @@ public class PacketListener implements ACheckListener {
     }
 
     private boolean check(Player player, MovingData data) {
+
+        boolean compatibility = Arc.COMPATIBILITY;
+
         CheckResult result = new CheckResult();
 
         Location from = data.getCurrentLocation();
@@ -184,7 +196,11 @@ public class PacketListener implements ACheckListener {
         if (hasMovedByBlock) {
             result.reset();
             if (canCheckFlight) {
-                result.set(FLIGHT.runBlockChecks(player, data));
+                if (compatibility) {
+                    result.set(FLIGHT_17.runBlockChecks(player, data));
+                } else {
+                    result.set(FLIGHT.runBlockChecks(player, data));
+                }
             }
 
             boolean canCheckNoFall = CHECK_MANAGER.canCheckPlayer(player, CheckType.NOFALL);
@@ -192,7 +208,7 @@ public class PacketListener implements ACheckListener {
                 NO_FALL.check(player, data);
             }
 
-            //    SPEED.check(player, data);
+            //SPEED.check(player, data);
 
         }
         return result.failed();

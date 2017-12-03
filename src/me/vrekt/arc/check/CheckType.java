@@ -12,7 +12,9 @@ public enum CheckType {
     NOSWING(CheckCategory.FIGHT, "NoSwing"),
     REACH(CheckCategory.FIGHT, "Reach"),
     REGENERATION(CheckCategory.FIGHT, "Regeneration"),
-    FASTCONSUME(CheckCategory.INVENTORY, "Fast Consume");
+    FASTCONSUME(CheckCategory.INVENTORY, "Fast Consume"),
+    FLIGHT_17(CheckCategory.MOVEMENT, "Flight"),
+    SPEED_17(CheckCategory.MOVEMENT, "Speed");
 
     private CheckCategory cat;
     private String checkName;
