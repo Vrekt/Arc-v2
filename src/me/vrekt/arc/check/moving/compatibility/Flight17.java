@@ -167,6 +167,16 @@ public class Flight17 extends Check {
                 handleCheckCancel(player, ground);
             }
 
+            // calculate expected falling speed.
+            double expected = Math.abs((Math.pow(0.98, data.getAirTicks()) - 1) * 3.92);
+            double difference = Math.abs(expected - vertical);
+            // make sure we've been gliding.
+            double distFromGround = LocationHelper.distanceVertical(ground, to);
+            if (distFromGround > 1.6 && difference > 0.01) {
+                result.set(checkViolation(player, "Velocity not expected."));
+                handleCheckCancel(player, ground);
+            }
+
         }
 
         // make sure the player isn't clipping through blocks

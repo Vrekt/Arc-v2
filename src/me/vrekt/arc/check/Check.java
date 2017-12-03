@@ -60,6 +60,7 @@ public abstract class Check {
         if (location == null) {
             return;
         }
+        Arc.getExemptionManager().addExemption(player, CheckType.FLIGHT, 10);
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 

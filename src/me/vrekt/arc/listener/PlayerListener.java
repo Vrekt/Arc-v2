@@ -43,11 +43,13 @@ public class PlayerListener implements Listener {
         MovingData data = MovingData.getData(player);
 
         // exempt on join for morepackets.
-        Arc.getExemptionManager().addExemption(player, CheckType.MOREPACKETS, 60);
+        Arc.getExemptionManager().addExemption(player, CheckType.MOREPACKETS, 20);
 
         data.setOnGround(LocationHelper.isOnGround(player.getLocation(), 0));
         data.setCurrentLocation(player.getLocation());
-        data.setGroundLocation(player.getLocation());
+        if (data.isOnGround()) {
+            data.setGroundLocation(player.getLocation());
+        }
 
     }
 

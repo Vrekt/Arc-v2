@@ -24,7 +24,6 @@ public class Flight extends Check {
         maxHeight = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "max-jump");
 
         maxAscendTime = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "ascend-time");
-
     }
 
     public void hoverCheck(Player player, MovingData data) {
@@ -152,7 +151,7 @@ public class Flight extends Check {
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK);
-        boolean hasActualVelocity = !isClimbing && !inLiquid && player.getVehicle() == null &&
+        boolean hasActualVelocity = !onGround && !isClimbing && !inLiquid && player.getVehicle() == null &&
                 !velocityModifier && !hasVelocity;
 
         if (!onGround && hasSlimeblockVelocity) {
@@ -198,8 +197,17 @@ public class Flight extends Check {
                 result.set(checkViolation(player, "Velocity not changing while descending."));
                 handleCheckCancel(player, ground);
             }
-
+            // calculate expected falling speed.
+            double expected = Math.abs((Math.pow(0.98, data.getAirTicks()) - 1) * 3.92);
+            double difference = Math.abs(expected - vertical);
+            // make sure we've been gliding.
+            double distFromGround = LocationHelper.distanceVertical(ground, to);
+            if (distFromGround > 1.6 && difference > 0.01) {
+                result.set(checkViolation(player, "Velocity not expected."));
+                handleCheckCancel(player, ground);
+            }
         }
+
 
         // make sure the player isn't clipping through blocks
         if (vertical > 0.99) {
@@ -224,6 +232,7 @@ public class Flight extends Check {
 
         // TODO: Add another descend check which will complete the flight check.
         // I'm still working on it and its taking awhile.
+
 
         return result.failed();
     }

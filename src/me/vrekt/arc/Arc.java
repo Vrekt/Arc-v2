@@ -48,7 +48,7 @@ public class Arc extends JavaPlugin {
             COMPATIBILITY = true;
         }
 
-        new MovingUpdateTask().runTaskTimer(this, 0, 10);
+        new MovingUpdateTask().runTaskTimer(this, 0, 1);
         getServer().getPluginManager().registerEvents(new FightListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);

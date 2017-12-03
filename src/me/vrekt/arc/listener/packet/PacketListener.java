@@ -165,8 +165,6 @@ public class PacketListener implements ACheckListener {
 
         if (hasMoved) {
             result.reset();
-            // update our last move time.
-            data.setLastMovingUpdate(System.currentTimeMillis());
 
             // update our distances.
             double vertical = Math.abs(LocationHelper.distanceVertical(from, to));
