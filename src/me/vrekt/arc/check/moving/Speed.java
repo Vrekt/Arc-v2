@@ -10,28 +10,77 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class Speed extends Check {
+    private final double MAX_SPEED_JUMP_BOOST = 0.6122;
+    private final double MAX_SPEED_JUMP = 0.58499359761931193;
+
 
     public Speed() {
         super(CheckType.SPEED);
     }
 
-    public void check(MovingData data, Player player) {
+    public boolean check(Player player, MovingData data) {
+
+        boolean failed = false;
 
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
+        Location setback = data.getSetback();
+        if (setback == null) {
+            data.setSetback(to);
+            return false;
+        }
 
         double thisMove = LocationHelper.distanceHorizontal(from, to);
         double baseMove = getBaseMoveSpeed(player);
 
-        // TODO: speed check coming VERY soon.
+        boolean onGround = data.isOnGround();
+        int groundTime = data.getGroundTime();
 
+        // onGround checks, these include normal speed checks, ice checks, etc.
+        if (onGround) {
+            boolean hasGround = groundTime >= 3;
+            if (hasGround) {
+                if (thisMove > baseMove) {
+                    failed = checkViolation(player, "Moving too fast.", setback);
+                }
+            }
+            data.setGroundTime(groundTime >= 8 ? 8 : groundTime + 1);
+        } else {
+            data.setGroundTime(0);
+        }
+
+        // offground checks, includes hop checks, ice, etc.
+        if (!onGround) {
+
+            // calculate current take-off stage.
+            double fromGround = LocationHelper.distanceVertical(data.getGroundLocation(), to);
+            // fromGround should be around 0.41-0.42 (a normal jump) when we get a speed boost. (0.61)
+            // generally, this is the max jump-move (0.58499359761931193) but sometimes you get boosted up to 0.61
+
+            // "boost jump"
+            if (fromGround <= 0.42) {
+                if (thisMove > MAX_SPEED_JUMP_BOOST) {
+                    failed = checkViolation(player, "Moving too fast.", setback);
+                }
+            } else if (fromGround > 0.42) {
+                if (thisMove > MAX_SPEED_JUMP) {
+                    failed = checkViolation(player, "Moving too fast.", setback);
+                }
+            }
+        }
+
+        // if we didn't fail, set our safe location to current.
+        if (!failed && onGround) {
+            data.setSetback(from);
+        }
+        return false;
     }
 
     /**
      * Return our base move speed.
      *
-     * @param player
-     * @return
+     * @param player the player
+     * @return players move speed
      */
     private double getBaseMoveSpeed(Player player) {
         double baseSpeed = 0.2873;
@@ -48,8 +97,8 @@ public class Speed extends Check {
     /**
      * Return if we have a speed potion active or not.
      *
-     * @param player
-     * @return
+     * @param player the player
+     * @return if the player has a speed potion
      */
     private boolean hasSpeedPotion(Player player) {
         for (PotionEffect ef : player.getActivePotionEffects()) {

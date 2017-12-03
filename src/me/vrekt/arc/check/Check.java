@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 public abstract class Check {
 
     private CheckType check;
+    protected CheckResult result = new CheckResult();
 
     /**
      * @param check the check.
@@ -30,8 +31,23 @@ public abstract class Check {
      * @param information the information.
      * @return to cancel or not.
      */
-    public boolean checkViolation(Player player, String information) {
+    protected boolean checkViolation(Player player, String information) {
         return Arc.getViolationHandler().handleViolation(player, check, information);
+    }
+
+    /**
+     * Handle the violation and cancel.
+     *
+     * @param player      the player
+     * @param information violation information
+     * @param setback     setback location
+     */
+    protected boolean checkViolation(Player player, String information, Location setback) {
+        boolean failed = checkViolation(player, information);
+        if (failed) {
+            handleCheckCancel(player, setback);
+        }
+        return failed;
     }
 
     /**

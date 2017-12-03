@@ -107,7 +107,7 @@ public class Moving17 extends BukkitRunnable implements Listener, ACheckListener
                 NO_FALL.check(player, data);
             }
 
-            SPEED.check(data, player);
+            SPEED.check(player, data);
 
         }
 

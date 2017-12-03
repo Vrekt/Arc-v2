@@ -3,7 +3,9 @@ package me.vrekt.arc.data.moving;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MovingData {
@@ -31,6 +33,7 @@ public class MovingData {
         }
     }
 
+    private Location setback;
     private Location current;
     private Location previous;
     private Location ground;
@@ -52,8 +55,18 @@ public class MovingData {
     private int airTicks;
     private int ascendingMoves, descendingMoves;
     private int movingPackets;
+    private int groundTime;
 
+    public List<Double> MAX = new ArrayList<>();
     private VelocityData velocityData = new VelocityData();
+
+    public Location getSetback() {
+        return setback;
+    }
+
+    public void setSetback(Location setback) {
+        this.setback = setback;
+    }
 
     public Location getCurrentLocation() {
         return current;
@@ -201,5 +214,13 @@ public class MovingData {
 
     public void setMovingPackets(int movingPackets) {
         this.movingPackets = movingPackets;
+    }
+
+    public int getGroundTime() {
+        return groundTime;
+    }
+
+    public void setGroundTime(int groundTime) {
+        this.groundTime = groundTime;
     }
 }

@@ -2,110 +2,16 @@ package me.vrekt.arc.listener.moving;
 
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.moving.Flight;
-import me.vrekt.arc.check.moving.NoFall;
-import me.vrekt.arc.check.moving.Speed;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class MovingListener extends BukkitRunnable implements Listener, ACheckListener {
+public class MovingListener extends BukkitRunnable implements ACheckListener {
     private final Flight FLIGHT = (Flight) CHECK_MANAGER.getCheck(CheckType.FLIGHT);
-    private final NoFall NO_FALL = (NoFall) CHECK_MANAGER.getCheck(CheckType.NOFALL);
-
-    private final Speed SPEED = (Speed) CHECK_MANAGER.getCheck(CheckType.SPEED);
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-        MovingData data = MovingData.getData(player);
-
-        // update our location data.
-        Location from = event.getFrom();
-        Location to = event.getTo();
-        data.setCurrentLocation(to);
-        data.setPreviousLocation(from);
-
-        // check if we have swapped worlds, if so stop here.
-        if (from.getWorld() != to.getWorld()) {
-            return;
-        }
-
-        // check if we have moved.
-        boolean hasMoved = from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ();
-
-        // check if we have moved but only from block to another block.
-        boolean hasMovedByBlock = from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY()
-                || from.getBlockZ() != to.getBlockZ();
-
-        boolean canCheckFlight = CHECK_MANAGER.canCheckPlayer(player, CheckType.FLIGHT);
-
-        if (hasMoved) {
-            // update our last move time.
-            data.setLastMovingUpdate(System.currentTimeMillis());
-
-            // update our distances.
-            double vertical = Math.abs(LocationHelper.distanceVertical(from, to));
-            data.setLastVerticalSpeed(data.getVerticalSpeed());
-            data.setVerticalSpeed(vertical);
-
-            // recheck if we are on ground and set it.
-            boolean prevGround = data.isOnGround();
-            boolean onGround = LocationHelper.isOnGround(to, vertical);
-            data.setOnGround(onGround);
-            if (onGround) {
-                data.setGroundLocation(to);
-            }
-
-            // update wasOnGround.
-            boolean accAirTime = data.getAirTicks() < 20 && prevGround;
-            data.setWasOnGround(accAirTime);
-
-
-            // update ascending/descending.
-            boolean ascending = to.getY() > from.getY() && vertical > 0.0;
-            boolean descending = from.getY() > to.getY() && vertical > 0.0;
-            data.setAscending(ascending);
-            data.setDescending(descending);
-
-            // check if we are climbing or not.
-            boolean isClimbing = (from.getBlock().getType() == Material.LADDER || from.getBlock().getType() == Material.VINE
-                    || to.getBlock().getType() == Material.LADDER || to.getBlock().getType() == Material.VINE);
-            data.setClimbing(isClimbing);
-
-            double velocity = player.getVelocity().length();
-            data.getVelocityData().setLastVelocity(data.getVelocityData().getCurrentVelocity());
-            data.getVelocityData().setCurrentVelocity(velocity);
-
-            if (canCheckFlight) {
-                FLIGHT.check(player, data);
-            }
-
-        }
-
-        if (hasMovedByBlock) {
-            if (canCheckFlight) {
-                FLIGHT.runBlockChecks(player, data);
-            }
-
-            boolean canCheckNoFall = CHECK_MANAGER.canCheckPlayer(player, CheckType.NOFALL);
-            if (canCheckNoFall) {
-                NO_FALL.check(player, data);
-            }
-
-            SPEED.check(data, player);
-
-        }
-
-    }
 
     @Override
     public void run() {

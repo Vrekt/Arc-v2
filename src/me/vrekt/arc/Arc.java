@@ -52,12 +52,10 @@ public class Arc extends JavaPlugin {
         if (COMPATIBILITY) {
             Moving17 movingListener = new Moving17();
             movingListener.runTaskTimer(this, 0, 10);
-            getServer().getPluginManager().registerEvents(movingListener, this);
         } else {
             getLogger().info("Registering listeners...");
             MovingListener movingListener = new MovingListener();
             movingListener.runTaskTimer(this, 0, 10);
-            getServer().getPluginManager().registerEvents(movingListener, this);
         }
 
         getServer().getPluginManager().registerEvents(new FightListener(), this);
