@@ -93,6 +93,46 @@ public class LocationHelper {
         return hasBlock;
     }
 
+    /**
+     * @param location the location
+     * @return if we are under a block.
+     */
+    public static boolean isUnderBlock(Location location) {
+        boolean hasBlock = false;
+
+        // determine if we are already under a block without expanding.
+        Location subtracted = location.clone().add(0, 2, 0);
+        Block block = subtracted.getBlock();
+
+        if (block.getType().isSolid()) {
+            // solid block found, return.
+            return true;
+        }
+
+        // expand the location and determine if we are being supported by a block.
+        double bit = MODIFIER;
+        double xbit = bit;
+        double zbit = bit;
+
+        for (int expansion = 0; expansion < 5; expansion++) {
+            Location newLocation = location.clone().add(xbit, 2, zbit);
+            Block newBlock = newLocation.getBlock();
+            if (newBlock.getType().isSolid()) {
+                hasBlock = true;
+                break;
+            }
+            if (expansion == 4) {
+                break;
+            }
+            // never pos and neg
+            // this follows the setup 0:(pos, pos) 1:(pos, neg) 2:(neg, pos) 3:(neg, neg)
+            xbit = expansion >= 2 ? -bit : bit;
+            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+        }
+
+        return hasBlock;
+    }
+
 
     /**
      * Distance horizontal from and to.

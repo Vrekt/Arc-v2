@@ -26,7 +26,8 @@ public class Flight extends Check {
         maxAscendTime = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "ascend-time");
     }
 
-    public void hoverCheck(Player player, MovingData data) {
+    public boolean hoverCheck(Player player, MovingData data) {
+        result.reset();
         if (data.isOnGround()) {
             data.setAirTicks(0);
         }
@@ -40,24 +41,22 @@ public class Flight extends Check {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
-                checkViolation(player, "airTicks more than allowed while no velocity is present. airTicks=" + data.getAirTicks());
-                handleCheckCancel(player, data.getGroundLocation());
+                result.set(checkViolation(player, "airTicks more than allowed while no velocity is present. airTicks=" + data.getAirTicks
+                        ()));
             }
         }
 
+        return result.failed();
     }
 
     public boolean runBlockChecks(Player player, MovingData data) {
         result.reset();
 
         if (!data.wasOnGround()) {
-            hoverCheck(player, data);
+            result.set(hoverCheck(player, data));
         }
 
-        // Ground and distances.
         double vertical = data.getVerticalSpeed();
-
-        Location ground = data.getGroundLocation();
 
         // ladder and vertical velocity stuff.
         boolean isAscending = data.isAscending();
@@ -76,14 +75,12 @@ public class Flight extends Check {
             if (vertical > maxAscendSpeed) {
                 result.set(checkViolation(player, "Ascending too fast while on a ladder. vertical: " + vertical + " max: " +
                         maxAscendSpeed));
-                handleCheckCancel(player, ground);
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
                 result.set(checkViolation(player, "Ascending too fast while on a ladder. AIR: " + airTicks + " vertical: " + vertical + " " +
                         "allowed: " + maxAscendSpeed + 0.12));
-                handleCheckCancel(player, ground);
             }
 
         }
@@ -94,7 +91,6 @@ public class Flight extends Check {
             if (vertical > maxDescendSpeed) {
                 result.set(checkViolation(player, "Descending too fast while on a ladder. vertical: " + vertical + " allowed: " +
                         maxDescendSpeed));
-                handleCheckCancel(player, ground);
             }
         }
 
@@ -119,9 +115,11 @@ public class Flight extends Check {
         double vertical = data.getVerticalSpeed();
         boolean hasSlimeblock = LocationHelper.isOnSlimeblock(to);
 
+        boolean hasVelocity = data.getVelocityData().hasVelocity();
+        VelocityData.VelocityCause velocityCause = data.getVelocityData().getVelocityCause();
         double velocity = data.getVelocityData().getCurrentVelocity();
-        int ascendingMoves = data.getAscendingMoves();
 
+        int ascendingMoves = data.getAscendingMoves();
         if (onGround) {
             // reset data
             data.setAscendingMoves(0);
@@ -131,9 +129,13 @@ public class Flight extends Check {
                 // update velocity stuff.
                 data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.SLIMEBLOCK);
                 data.getVelocityData().setHasVelocity(true);
-            } else {
-                data.getVelocityData().setHasVelocity(false);
             }
+
+            if (hasVelocity && velocityCause.equals(VelocityData.VelocityCause.TELEPORT)) {
+                data.getVelocityData().setHasVelocity(false);
+                return false;
+            }
+
         }
 
         if (isAscending) {
@@ -144,15 +146,23 @@ public class Flight extends Check {
 
         if (isDescending) {
             data.setAscendingMoves(0);
+            data.getVelocityData().setHasVelocity(false);
         }
 
 
-        boolean hasVelocity = data.getVelocityData().hasVelocity();
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK);
         boolean hasActualVelocity = !onGround && !isClimbing && !inLiquid && player.getVehicle() == null &&
                 !velocityModifier && !hasVelocity;
+
+        if (hasVelocity) {
+            // reset knockback.
+            if (data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause.KNOCKBACK)) {
+                data.getVelocityData().setHasVelocity(false);
+                return false;
+            }
+        }
 
         if (!onGround && hasSlimeblockVelocity) {
             // make sure we're not ascending too high by checking if our velocity goes down.
@@ -160,27 +170,26 @@ public class Flight extends Check {
             if (velocity > last && ascendingMoves > maxAscendTime) {
                 // were ascending too high, flag.
                 result.set(checkViolation(player, "Velocity after slimeblock bounce not expected."));
-                handleCheckCancel(player, ground);
-            }
-
-            if (isDescending) {
-                // reset velocity.
-                data.getVelocityData().setHasVelocity(false);
             }
 
         }
 
         // Make sure we're not jumping too high or for too long.
         if (hasActualVelocity && isAscending) {
+            double distance = LocationHelper.distanceVertical(ground, to);
+            // distance is pretty high, lets check.
+            if (distance >= 1.4) {
+                result.set(checkViolation(player, "Ascending too high."));
+            }
+
+            // check ascend time.
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
                 result.set(checkViolation(player, "Ascending for too long. moves=" + ascendingMoves + " max=" + maxAscendTime));
-                handleCheckCancel(player, ground);
             }
 
             if (vertical > getMaxJump(player)) {
                 result.set(checkViolation(player, "Ascending too fast. vertical=" + vertical));
-                handleCheckCancel(player, ground);
             }
         }
 
@@ -195,7 +204,6 @@ public class Flight extends Check {
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
                 result.set(checkViolation(player, "Velocity not changing while descending."));
-                handleCheckCancel(player, ground);
             }
             // calculate expected falling speed.
             double expected = Math.abs((Math.pow(0.98, data.getAirTicks()) - 1) * 3.92);
@@ -204,7 +212,6 @@ public class Flight extends Check {
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             if (distFromGround > 1.6 && difference > 0.01) {
                 result.set(checkViolation(player, "Velocity not expected."));
-                handleCheckCancel(player, ground);
             }
         }
 
@@ -222,17 +229,10 @@ public class Flight extends Check {
                     // its solid, cancel.
                     boolean failed = checkViolation(player, "Attempted to clip vertically. Block: " + current.getType()
                             + " fromY: " + from.getBlockY() + " toY: " + to.getBlockY());
-                    if (failed) {
-                        handleCheckCancel(player, from);
-                    }
                     result.set(failed);
                 }
             }
         }
-
-        // TODO: Add another descend check which will complete the flight check.
-        // I'm still working on it and its taking awhile.
-
 
         return result.failed();
     }

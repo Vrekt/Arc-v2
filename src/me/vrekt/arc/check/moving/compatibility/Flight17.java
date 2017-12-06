@@ -39,7 +39,6 @@ public class Flight17 extends Check {
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
                 checkViolation(player, "airTicks more than allowed while no velocity is present. airTicks=" + data.getAirTicks());
-                handleCheckCancel(player, data.getGroundLocation());
             }
         }
 
@@ -74,14 +73,12 @@ public class Flight17 extends Check {
             if (vertical > maxAscendSpeed) {
                 result.set(checkViolation(player, "Ascending too fast while on a ladder. vertical: " + vertical + " max: " +
                         maxAscendSpeed));
-                handleCheckCancel(player, ground);
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
                 result.set(checkViolation(player, "Ascending too fast while on a ladder. AIR: " + airTicks + " vertical: " + vertical + " " +
                         "allowed: " + maxAscendSpeed + 0.12));
-                handleCheckCancel(player, ground);
             }
 
         }
@@ -92,7 +89,6 @@ public class Flight17 extends Check {
             if (vertical > maxDescendSpeed) {
                 result.set(checkViolation(player, "Descending too fast while on a ladder. vertical: " + vertical + " allowed: " +
                         maxDescendSpeed));
-                handleCheckCancel(player, ground);
             }
         }
 
@@ -144,12 +140,10 @@ public class Flight17 extends Check {
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
                 result.set(checkViolation(player, "Ascending for too long. moves=" + ascendingMoves + " max=" + maxAscendTime));
-                handleCheckCancel(player, ground);
             }
 
             if (vertical > getMaxJump(player)) {
                 result.set(checkViolation(player, "Ascending too fast. vertical=" + vertical));
-                handleCheckCancel(player, ground);
             }
         }
 
@@ -164,7 +158,6 @@ public class Flight17 extends Check {
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
                 result.set(checkViolation(player, "Velocity not changing while descending."));
-                handleCheckCancel(player, ground);
             }
 
             // calculate expected falling speed.
@@ -174,7 +167,6 @@ public class Flight17 extends Check {
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             if (distFromGround > 1.6 && difference > 0.01) {
                 result.set(checkViolation(player, "Velocity not expected."));
-                handleCheckCancel(player, ground);
             }
 
         }
@@ -193,15 +185,9 @@ public class Flight17 extends Check {
                     boolean cancel = checkViolation(player, "Attempted to clip vertically. Block: " + current.getType()
                             + " fromY: " + from.getBlockY() + " toY: " + to.getBlockY());
                     result.set(cancel);
-                    if (cancel) {
-                        handleCheckCancel(player, from);
-                    }
                 }
             }
         }
-
-        // TODO: Add another descend check which will complete the flight check.
-        // I'm still working on it and its taking awhile.
         return result.failed();
     }
 

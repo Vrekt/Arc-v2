@@ -10,7 +10,7 @@ public class CheckResult {
      * @param hasFailed indicates if we have failed.
      */
     public void set(boolean hasFailed) {
-        if (this.hasFailed) {
+        if (!hasFailed && this.hasFailed) {
             return;
         }
         this.hasFailed = hasFailed;

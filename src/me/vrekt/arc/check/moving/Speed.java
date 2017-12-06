@@ -19,25 +19,43 @@ public class Speed extends Check {
     }
 
     public boolean check(Player player, MovingData data) {
-
-        boolean failed = false;
-
+        result.reset();
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
         Location setback = data.getSetback();
-        if (setback == null) {
-            data.setSetback(to);
-            return false;
-        }
-
-        double thisMove = LocationHelper.distanceHorizontal(from, to);
-        double baseMove = getBaseMoveSpeed(player);
 
         boolean onGround = data.isOnGround();
-        int groundTime = data.getGroundTime();
+        int groundTicks = data.getGroundTime();
+
+        double thisMove = LocationHelper.distance(from, to);
+        double baseMove = getBaseMoveSpeed(player);
+        double vertical = data.getVerticalSpeed();
+
+        if (onGround && groundTicks > 1) {
+            double expected = thisMove / data.getGroundTime() + baseMove;
+
+            // player.sendMessage("MOVE: " + thisMove + " EX: " + expected);
+            if (thisMove > expected) {
+                // result.set(checkViolation(player, "Moving too fast.", setback));
+            }
+
+            // check if we are jumping with a block above us
+            if (vertical > 0.0 && LocationHelper.isUnderBlock(to)) {
+                expected = thisMove / data.getGroundTime() + MAX_SPEED_JUMP - vertical;
+                player.sendMessage("EX: " + expected + " MOVE: " + thisMove);
+            }
+
+        }
+
+        if (!result.failed()) {
+            data.setSetback(to);
+        }
+
+        return result.failed();
+        //  player.sendMessage("MOVE: " + thisMove);
 
         // onGround checks, these include normal speed checks, ice checks, etc.
-        if (onGround) {
+       /* if (onGround) {
             boolean hasGround = groundTime >= 3;
             if (hasGround) {
                 if (thisMove > baseMove) {
@@ -72,8 +90,7 @@ public class Speed extends Check {
         // if we didn't fail, set our safe location to current.
         if (!failed && onGround) {
             data.setSetback(from);
-        }
-        return false;
+        }*/
     }
 
     /**
