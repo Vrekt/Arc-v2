@@ -70,7 +70,6 @@ public class ViolationHandler {
         }
 
         boolean cancel2 = violationLevel >= cancel && cancellable;
-        player.sendMessage("C: " + cancel2);
         return cancel2;
     }
 

@@ -202,12 +202,14 @@ public class Flight extends Check {
             if (glideDelta == 0.0) {
                 result.set(checkViolation(player));
             }
+            // TODO: FIX
             // calculate expected falling speed.
-            double expected = Math.abs((Math.pow(0.98, data.getAirTicks()) - 1) * 3.92);
+            double expected = Math.abs((Math.pow(0.98, data.getAirTicks())) - 1) * 3.92;
             double difference = Math.abs(expected - vertical);
             // make sure we've been gliding.
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             if (distFromGround > 1.6 && difference > 0.01) {
+                player.sendMessage("DIFF: " + difference);
                 result.set(checkViolation(player));
             }
         }
