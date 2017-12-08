@@ -1,6 +1,7 @@
 package me.vrekt.arc.command;
 
 import me.vrekt.arc.command.commands.CommandInfo;
+import me.vrekt.arc.command.commands.CommandSummary;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class CommandExecutor {
     public CommandExecutor() {
         // add commands
         COMMAND_LIST.add(new CommandInfo());
+        COMMAND_LIST.add(new CommandSummary());
     }
 
     /**

@@ -42,7 +42,6 @@ public class Speed extends Check {
             // check if we are jumping with a block above us
             if (vertical > 0.0 && LocationHelper.isUnderBlock(to)) {
                 expected = thisMove / data.getGroundTime() + MAX_SPEED_JUMP - vertical;
-                player.sendMessage("EX: " + expected + " MOVE: " + thisMove);
             }
 
         }

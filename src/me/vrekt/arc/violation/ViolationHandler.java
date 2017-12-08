@@ -17,7 +17,7 @@ public class ViolationHandler {
      * @param player the player
      * @return the players ViolationData.
      */
-    private ViolationData getViolationData(Player player) {
+    public ViolationData getViolationData(Player player) {
         VIOLATION_DATA.putIfAbsent(player, new ViolationData());
         return VIOLATION_DATA.get(player);
     }

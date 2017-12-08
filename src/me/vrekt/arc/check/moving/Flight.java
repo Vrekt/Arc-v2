@@ -9,6 +9,7 @@ import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffectType;
 
 public class Flight extends Check {
@@ -229,7 +230,10 @@ public class Flight extends Check {
                     // its solid, cancel.
                     boolean failed = checkViolation(player, "Attempted to clip vertically. Block: " + current.getType()
                             + " fromY: " + from.getBlockY() + " toY: " + to.getBlockY());
-                    result.set(failed);
+                    if (failed) {
+                        // dont set the result because we want a different set-back
+                        player.teleport(from, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    }
                 }
             }
         }
