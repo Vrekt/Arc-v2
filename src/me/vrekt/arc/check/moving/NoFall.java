@@ -26,7 +26,7 @@ public class NoFall extends Check {
 
         // make sure we meet the req.
         if (isDescending) {
-            boolean ccOnGround = data.isClientOnGround();
+            boolean ccOnGround = data.isFlyingClientOnGround();
             // we're not on ground but the client is?
             if (ccOnGround && player.getFallDistance() == 0.0) {
                 boolean cancel = checkViolation(player, "client onGround while not actually onGround.");

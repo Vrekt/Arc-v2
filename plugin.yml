@@ -12,3 +12,8 @@ permissions:
     description: Allows a player to see what another player fails and the debug info with it.
   arc.administrator:
     description: Allows a player to manage Arc.
+
+commands:
+  arc:
+   description: Base command for Arc management.
+   usage: /arc

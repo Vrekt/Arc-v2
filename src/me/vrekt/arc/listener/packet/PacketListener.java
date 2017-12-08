@@ -18,21 +18,23 @@ import packetwrapper.WrapperPlayClientPositionLook;
 
 public class PacketListener implements ACheckListener {
     private final MorePackets MORE_PACKETS = (MorePackets) Arc.getCheckManager().getCheck(CheckType.MOREPACKETS);
-
+    private boolean listening = false;
 
     public void startListening(Plugin plugin, ProtocolManager manager) {
+        listening = true;
         manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.FLYING) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
-                if (data.cancelMovingPackets()) {
-                    event.setCancelled(true);
-                }
 
                 // Update ground info.
                 WrapperPlayClientFlying flying = new WrapperPlayClientFlying(event.getPacket());
-                data.setClientOnGround(flying.getOnGround());
+                data.setFlyingClientOnGround(flying.getOnGround());
+
+                if (data.cancelMovingPackets()) {
+                    event.setCancelled(true);
+                }
 
                 // Update packet info.
                 data.setMovingPackets(data.getMovingPackets() + 1);
@@ -50,17 +52,13 @@ public class PacketListener implements ACheckListener {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
 
-                if (data.cancelMovingPackets()) {
-                    event.setCancelled(true);
-                }
-
                 // Update ground info.
                 if (event.getPacket().getType().equals(PacketType.Play.Client.POSITION)) {
                     WrapperPlayClientPosition position = new WrapperPlayClientPosition(event.getPacket());
-                    data.setClientOnGround(position.getOnGround());
+                    data.setPositionClientOnGround(position.getOnGround());
                 } else {
                     WrapperPlayClientPositionLook position = new WrapperPlayClientPositionLook(event.getPacket());
-                    data.setClientOnGround(position.getOnGround());
+                    data.setPositionClientOnGround(position.getOnGround());
                 }
 
                 // Update packet info.
@@ -114,4 +112,10 @@ public class PacketListener implements ACheckListener {
         return false;
     }
 
+    /**
+     * @return if we are listening for packets.
+     */
+    public boolean isListening() {
+        return listening;
+    }
 }

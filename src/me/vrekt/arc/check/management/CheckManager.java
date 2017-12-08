@@ -3,6 +3,7 @@ package me.vrekt.arc.check.management;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
+import me.vrekt.arc.check.combat.Criticals;
 import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
@@ -72,6 +73,7 @@ public class CheckManager {
         CHECKS.add(new NoFall());
         CHECKS.add(new Regeneration());
         CHECKS.add(new Speed());
+        CHECKS.add(new Criticals());
 
     }
 
@@ -166,4 +168,10 @@ public class CheckManager {
         return CHECKS.stream().filter(check -> check.getCheck() == type).findAny().orElse(null);
     }
 
+    /**
+     * @return list of all checks.
+     */
+    public List<Check> getChecks() {
+        return CHECKS;
+    }
 }

@@ -38,7 +38,8 @@ public class MovingData {
 
     private boolean onGround;
     private boolean wasOnGround;
-    private boolean clientOnGround;
+    private boolean flyingClientOnGround;
+    private boolean positionClientOnGround;
     private boolean isAscending;
     private boolean isDescending;
     private boolean isClimbing;
@@ -104,12 +105,20 @@ public class MovingData {
         this.wasOnGround = wasOnGround;
     }
 
-    public boolean isClientOnGround() {
-        return clientOnGround;
+    public boolean isFlyingClientOnGround() {
+        return flyingClientOnGround;
     }
 
-    public void setClientOnGround(boolean clientOnGround) {
-        this.clientOnGround = clientOnGround;
+    public void setFlyingClientOnGround(boolean flyingClientOnGround) {
+        this.flyingClientOnGround = flyingClientOnGround;
+    }
+
+    public boolean isPositionClientOnGround() {
+        return positionClientOnGround;
+    }
+
+    public void setPositionClientOnGround(boolean positionClientOnGround) {
+        this.positionClientOnGround = positionClientOnGround;
     }
 
     public boolean isAscending() {

@@ -2,6 +2,8 @@ package me.vrekt.arc;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import me.vrekt.arc.check.management.CheckManager;
+import me.vrekt.arc.command.CommandBase;
+import me.vrekt.arc.command.CommandExecutor;
 import me.vrekt.arc.data.moving.task.MovingUpdateTask;
 import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
@@ -18,13 +20,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 
 public class Arc extends JavaPlugin {
-    private static Plugin thisPlugin;
+
+    /**
+     * ARC INFO/COMPAT
+     **/
     public static boolean COMPATIBILITY = false;
+    public static String VERSION = "1.0.3-b1";
+
+    private static Plugin thisPlugin;
 
     private static CheckManager checkManager;
+    private static PacketListener packetListener;
 
     private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
     private static final ViolationHandler VIOLATION_HANDLER = new ViolationHandler();
+
+    private static final CommandExecutor COMMAND_EXECUTOR = new CommandExecutor();
 
     /**
      * Gets called when the plugin is enabled.
@@ -56,7 +67,10 @@ public class Arc extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MovingListener(), this);
 
         // TODO: New PacketListener might be needed for 1.7 (not sure).
-        new PacketListener().startListening(this, ProtocolLibrary.getProtocolManager());
+        packetListener = new PacketListener();
+        packetListener.startListening(this, ProtocolLibrary.getProtocolManager());
+
+        getCommand("arc").setExecutor(new CommandBase());
 
     }
 
@@ -86,6 +100,13 @@ public class Arc extends JavaPlugin {
     }
 
     /**
+     * @return the packet listener.
+     */
+    public static PacketListener getPacketListener() {
+        return packetListener;
+    }
+
+    /**
      * @return the exemption manager.
      */
     public static ExemptionManager getExemptionManager() {
@@ -97,5 +118,12 @@ public class Arc extends JavaPlugin {
      */
     public static ViolationHandler getViolationHandler() {
         return VIOLATION_HANDLER;
+    }
+
+    /**
+     * @return the command executor.
+     */
+    public static CommandExecutor getCommandExecutor() {
+        return COMMAND_EXECUTOR;
     }
 }
