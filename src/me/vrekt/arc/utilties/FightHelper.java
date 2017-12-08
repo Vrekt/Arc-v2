@@ -10,8 +10,8 @@ public class FightHelper {
     /**
      * Check if an attack was a critical.
      *
-     * @param player
-     * @return
+     * @param player the player
+     * @return true, if the attack was registered as a critical.
      */
     public static boolean isCritical(Player player) {
 

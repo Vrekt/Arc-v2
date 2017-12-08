@@ -10,8 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener, ACheckListener {
@@ -48,6 +50,23 @@ public class InventoryListener implements Listener, ACheckListener {
                 // update data.
                 data.setConsumeTime(System.currentTimeMillis());
             }
+        }
+
+    }
+
+    /**
+     * Handle the GUI stuff.
+     */
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+
+        Inventory inventory = event.getInventory();
+        if (inventory.getTitle().contains("Summary for ")) {
+            event.setCancelled(true);
+
+            Player player = (Player) event.getWhoClicked();
+
+
         }
 
     }

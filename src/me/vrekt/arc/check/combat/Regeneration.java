@@ -25,7 +25,7 @@ public class Regeneration extends Check {
         long timeSince = now - past;
 
         // check if the time it took to regenerate is lower than allowed.
-        return timeSince < regenerationTime && checkViolation(player, "Regeneration time too low. time=" + timeSince + " allowed=" + regenerationTime);
+        return timeSince < regenerationTime && checkViolation(player);
     }
 
 }

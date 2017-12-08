@@ -37,12 +37,11 @@ public class ViolationHandler {
     /**
      * Handle a violation.
      *
-     * @param player      the player
-     * @param check       the check
-     * @param information violation information/debug.
+     * @param player the player
+     * @param check  the check
      * @return whether or not to cancel.
      */
-    public boolean handleViolation(Player player, CheckType check, String information) {
+    public boolean handleViolation(Player player, CheckType check) {
         ViolationData data = getViolationData(player);
         int violationLevel = data.getViolationLevel(check) + 1;
 
@@ -63,14 +62,16 @@ public class ViolationHandler {
             Bukkit.broadcast(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] "
                     + ChatColor.BLUE + player.getName() + ChatColor.WHITE + " has violated check " + ChatColor.RED
                     + check.getCheckName() + ChatColor.DARK_GRAY + " (" + ChatColor.RED + violationLevel + ChatColor.DARK_GRAY
-                    + ") " + ChatColor.GRAY + "[" + information + "]", "arc.notify");
+                    + ")", "arc.notify");
         }
 
         if (violationLevel >= ban && bannable) {
-            // TODO: Schedule ban.
+            Arc.getArcPlayerManager().scheduleBan(player);
         }
 
-        return violationLevel >= cancel && cancellable;
+        boolean cancel2 = violationLevel >= cancel && cancellable;
+        player.sendMessage("C: " + cancel2);
+        return cancel2;
     }
 
 }

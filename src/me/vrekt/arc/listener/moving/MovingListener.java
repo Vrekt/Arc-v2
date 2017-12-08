@@ -103,6 +103,7 @@ public class MovingListener implements Listener, ACheckListener {
                 if (compatibility) {
                     result.set(FLIGHT_17.runBlockChecks(player, data));
                 } else {
+
                     result.set(FLIGHT.runBlockChecks(player, data));
                 }
             }

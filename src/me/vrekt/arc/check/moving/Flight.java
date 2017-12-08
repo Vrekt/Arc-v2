@@ -27,7 +27,7 @@ public class Flight extends Check {
         maxAscendTime = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "ascend-time");
     }
 
-    public boolean hoverCheck(Player player, MovingData data) {
+    private boolean hoverCheck(Player player, MovingData data) {
         result.reset();
         if (data.isOnGround()) {
             data.setAirTicks(0);
@@ -42,8 +42,7 @@ public class Flight extends Check {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
-                result.set(checkViolation(player, "airTicks more than allowed while no velocity is present. airTicks=" + data.getAirTicks
-                        ()));
+                result.set(checkViolation(player));
             }
         }
 
@@ -74,14 +73,12 @@ public class Flight extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                result.set(checkViolation(player, "Ascending too fast while on a ladder. vertical: " + vertical + " max: " +
-                        maxAscendSpeed));
+                result.set(checkViolation(player));
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
-                result.set(checkViolation(player, "Ascending too fast while on a ladder. AIR: " + airTicks + " vertical: " + vertical + " " +
-                        "allowed: " + maxAscendSpeed + 0.12));
+                result.set(checkViolation(player));
             }
 
         }
@@ -90,8 +87,7 @@ public class Flight extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                result.set(checkViolation(player, "Descending too fast while on a ladder. vertical: " + vertical + " allowed: " +
-                        maxDescendSpeed));
+                result.set(checkViolation(player));
             }
         }
 
@@ -170,7 +166,7 @@ public class Flight extends Check {
             double last = data.getVelocityData().getLastVelocity();
             if (velocity > last && ascendingMoves > maxAscendTime) {
                 // were ascending too high, flag.
-                result.set(checkViolation(player, "Velocity after slimeblock bounce not expected."));
+                result.set(checkViolation(player));
             }
 
         }
@@ -180,17 +176,17 @@ public class Flight extends Check {
             double distance = LocationHelper.distanceVertical(ground, to);
             // distance is pretty high, lets check.
             if (distance >= 1.4) {
-                result.set(checkViolation(player, "Ascending too high."));
+                result.set(checkViolation(player));
             }
 
             // check ascend time.
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
-                result.set(checkViolation(player, "Ascending for too long. moves=" + ascendingMoves + " max=" + maxAscendTime));
+                result.set(checkViolation(player));
             }
 
             if (vertical > getMaxJump(player)) {
-                result.set(checkViolation(player, "Ascending too fast. vertical=" + vertical));
+                result.set(checkViolation(player));
             }
         }
 
@@ -204,7 +200,7 @@ public class Flight extends Check {
 
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
-                result.set(checkViolation(player, "Velocity not changing while descending."));
+                result.set(checkViolation(player));
             }
             // calculate expected falling speed.
             double expected = Math.abs((Math.pow(0.98, data.getAirTicks()) - 1) * 3.92);
@@ -212,7 +208,7 @@ public class Flight extends Check {
             // make sure we've been gliding.
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             if (distFromGround > 1.6 && difference > 0.01) {
-                result.set(checkViolation(player, "Velocity not expected."));
+                result.set(checkViolation(player));
             }
         }
 
@@ -228,8 +224,7 @@ public class Flight extends Check {
                 Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
-                    boolean failed = checkViolation(player, "Attempted to clip vertically. Block: " + current.getType()
-                            + " fromY: " + from.getBlockY() + " toY: " + to.getBlockY());
+                    boolean failed = checkViolation(player);
                     if (failed) {
                         // dont set the result because we want a different set-back
                         player.teleport(from, PlayerTeleportEvent.TeleportCause.PLUGIN);

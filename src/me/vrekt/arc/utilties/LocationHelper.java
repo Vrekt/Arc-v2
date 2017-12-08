@@ -9,7 +9,6 @@ import org.bukkit.material.Step;
 
 public class LocationHelper {
     private static final double MODIFIER = 0.3;
-    private static final Material SOLID_LIST[] = new Material[]{Material.FENCE, Material.WOOD_STAIRS, Material.FENCE_GATE};
 
     /**
      * Check if we are on ground by expanding the location and checking blocks
@@ -32,6 +31,14 @@ public class LocationHelper {
             return true;
         }
 
+        // fix for stair/fence detection.
+        Location modifiedGround = location.clone();
+        Block modifiedGroundBlock = modifiedGround.getBlock().getRelative(BlockFace.DOWN);
+        if (MaterialHelper.isFence(modifiedGroundBlock.getType()) || MaterialHelper.isFenceGate(modifiedGroundBlock.getType()) ||
+                modifiedGroundBlock.getType().getData().equals(Stairs.class)) {
+            return true;
+        }
+
         // expand the location and determine if we are being supported by a block.
         double bit = MODIFIER;
         double xbit = bit;
@@ -48,11 +55,6 @@ public class LocationHelper {
                 break;
             }
 
-            for (Material mat : SOLID_LIST) {
-                if (block.getType().getData().equals(mat.getData())) {
-                    return true;
-                }
-            }
 
             // never pos and neg
             // this follows the setup 0:(pos, pos) 1:(pos, neg) 2:(neg, pos) 3:(neg, neg)

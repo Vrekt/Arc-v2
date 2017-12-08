@@ -1,7 +1,6 @@
 package me.vrekt.arc.check;
 
 import me.vrekt.arc.Arc;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public abstract class Check {
@@ -26,23 +25,11 @@ public abstract class Check {
     /**
      * Handle the violation.
      *
-     * @param player      the player
-     * @param information the information.
+     * @param player the player
      * @return to cancel or not.
      */
-    protected boolean checkViolation(Player player, String information) {
-        return Arc.getViolationHandler().handleViolation(player, check, information);
-    }
-
-    /**
-     * Handle the violation and cancel.
-     *
-     * @param player      the player
-     * @param information violation information
-     * @param setback     setback location
-     */
-    protected boolean checkViolation(Player player, String information, Location setback) {
-       return checkViolation(player, information);
+    protected boolean checkViolation(Player player) {
+        return Arc.getViolationHandler().handleViolation(player, check);
     }
 
 }

@@ -29,7 +29,7 @@ public class NoFall extends Check {
             boolean ccOnGround = data.isFlyingClientOnGround();
             // we're not on ground but the client is?
             if (ccOnGround && player.getFallDistance() == 0.0) {
-                boolean cancel = checkViolation(player, "client onGround while not actually onGround.");
+                boolean cancel = checkViolation(player);
                 // if we cancel damage the player. (not accurate)
                 // TODO: Make accurate
                 if (cancel) {

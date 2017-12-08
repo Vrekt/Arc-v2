@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import me.vrekt.arc.check.management.CheckManager;
 import me.vrekt.arc.command.CommandBase;
 import me.vrekt.arc.command.CommandExecutor;
+import me.vrekt.arc.config.ArcConfiguration;
 import me.vrekt.arc.data.moving.task.MovingUpdateTask;
 import me.vrekt.arc.exemption.ExemptionManager;
 import me.vrekt.arc.listener.PlayerListener;
@@ -11,6 +12,7 @@ import me.vrekt.arc.listener.combat.FightListener;
 import me.vrekt.arc.listener.inventory.InventoryListener;
 import me.vrekt.arc.listener.moving.MovingListener;
 import me.vrekt.arc.listener.packet.PacketListener;
+import me.vrekt.arc.management.ArcPlayerManager;
 import me.vrekt.arc.violation.ViolationHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,11 +33,13 @@ public class Arc extends JavaPlugin {
 
     private static CheckManager checkManager;
     private static PacketListener packetListener;
+    private static ArcPlayerManager arcPlayerManager;
 
     private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
     private static final ViolationHandler VIOLATION_HANDLER = new ViolationHandler();
 
     private static final CommandExecutor COMMAND_EXECUTOR = new CommandExecutor();
+    private static final ArcConfiguration ARC_CONFIGURATION = new ArcConfiguration();
 
     /**
      * Gets called when the plugin is enabled.
@@ -52,6 +56,9 @@ public class Arc extends JavaPlugin {
 
         checkManager = new CheckManager(getConfig());
         checkManager.initializeAllChecks();
+        ARC_CONFIGURATION.read(getConfig());
+
+        arcPlayerManager = new ArcPlayerManager();
 
         getLogger().info("Checking spigot version....");
 
@@ -107,6 +114,13 @@ public class Arc extends JavaPlugin {
     }
 
     /**
+     * @return the player manager.
+     */
+    public static ArcPlayerManager getArcPlayerManager() {
+        return arcPlayerManager;
+    }
+
+    /**
      * @return the exemption manager.
      */
     public static ExemptionManager getExemptionManager() {
@@ -125,5 +139,12 @@ public class Arc extends JavaPlugin {
      */
     public static CommandExecutor getCommandExecutor() {
         return COMMAND_EXECUTOR;
+    }
+
+    /**
+     * @return the configuration.
+     */
+    public static ArcConfiguration getArcConfiguration() {
+        return ARC_CONFIGURATION;
     }
 }
