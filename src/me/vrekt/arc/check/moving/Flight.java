@@ -2,6 +2,7 @@ package me.vrekt.arc.check.moving;
 
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
+import me.vrekt.arc.check.CheckResult;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.data.moving.VelocityData;
@@ -49,7 +50,7 @@ public class Flight extends Check {
         return result.failed();
     }
 
-    public boolean runBlockChecks(Player player, MovingData data) {
+    public CheckResult runBlockChecks(Player player, MovingData data) {
         result.reset();
 
         if (!data.wasOnGround()) {
@@ -73,12 +74,12 @@ public class Flight extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
 
         }
@@ -87,14 +88,14 @@ public class Flight extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
         }
 
-        return result.failed();
+        return result;
     }
 
-    public boolean check(Player player, MovingData data) {
+    public CheckResult check(Player player, MovingData data) {
         result.reset();
 
         Location ground = data.getGroundLocation();
@@ -130,7 +131,7 @@ public class Flight extends Check {
 
             if (hasVelocity && velocityCause.equals(VelocityData.VelocityCause.TELEPORT)) {
                 data.getVelocityData().setHasVelocity(false);
-                return false;
+                return result;
             }
 
         }
@@ -150,14 +151,14 @@ public class Flight extends Check {
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK);
-        boolean hasActualVelocity = !onGround && !isClimbing && !inLiquid && player.getVehicle() == null &&
+        boolean hasActualVelocity = !isClimbing && !inLiquid && player.getVehicle() == null &&
                 !velocityModifier && !hasVelocity;
 
         if (hasVelocity) {
             // reset knockback.
             if (data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause.KNOCKBACK)) {
                 data.getVelocityData().setHasVelocity(false);
-                return false;
+                return result;
             }
         }
 
@@ -174,7 +175,7 @@ public class Flight extends Check {
         // Make sure we're not jumping too high or for too long.
         if (hasActualVelocity && isAscending) {
             double distance = LocationHelper.distanceVertical(ground, to);
-            // distance is pretty high, lets check.
+            // distance is pretty high, that's not right.
             if (distance >= 1.4) {
                 result.set(checkViolation(player));
             }
@@ -185,8 +186,9 @@ public class Flight extends Check {
                 result.set(checkViolation(player));
             }
 
+            // jumping too high
             if (vertical > getMaxJump(player)) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), from);
             }
         }
 
@@ -235,7 +237,7 @@ public class Flight extends Check {
             }
         }
 
-        return result.failed();
+        return result;
     }
 
     /**

@@ -37,6 +37,8 @@ public class MovingListener implements Listener, ACheckListener {
         Location from = event.getFrom();
         Location to = event.getTo();
 
+        Location setback = null;
+
         data.setPreviousLocation(from);
         data.setCurrentLocation(to);
 
@@ -91,21 +93,42 @@ public class MovingListener implements Listener, ACheckListener {
             data.getVelocityData().setCurrentVelocity(velocity);
 
             if (canCheckFlight) {
-                result.set(FLIGHT.check(player, data));
+                // get the result and cancel if there is an alternate setback.
+                CheckResult flightResult = FLIGHT.check(player, data);
+                result.set(flightResult.failed());
+                if (result.failed()) {
+                    if (flightResult.getCancelLocation() != null) {
+                        event.setTo(flightResult.getCancelLocation());
+                    } else {
+                        event.setTo(data.getGroundLocation());
+                    }
+                }
             }
 
         }
+
 
         if (hasMovedByBlock) {
             result.reset();
             if (canCheckFlight) {
                 // check based on compatibility
+                CheckResult flightResult;
                 if (compatibility) {
-                    result.set(FLIGHT_17.runBlockChecks(player, data));
+                    flightResult = FLIGHT_17.runBlockChecks(player, data);
                 } else {
-
-                    result.set(FLIGHT.runBlockChecks(player, data));
+                    flightResult = FLIGHT.runBlockChecks(player, data);
                 }
+
+                // cancel if there is an alternate setback.
+                result.set(flightResult.failed());
+                if (result.failed()) {
+                    if (flightResult.getCancelLocation() != null) {
+                        event.setTo(flightResult.getCancelLocation());
+                    } else {
+                        event.setTo(data.getGroundLocation());
+                    }
+                }
+
             }
 
             boolean canCheckNoFall = CHECK_MANAGER.canCheckPlayer(player, CheckType.NOFALL);
@@ -113,11 +136,6 @@ public class MovingListener implements Listener, ACheckListener {
                 NO_FALL.check(player, data);
             }
             SPEED.check(player, data);
-
-        }
-
-        if (result.failed()) {
-            event.setTo(data.getGroundLocation());
         }
 
     }

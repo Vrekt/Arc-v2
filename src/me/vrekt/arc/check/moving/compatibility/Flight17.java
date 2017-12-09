@@ -2,6 +2,7 @@ package me.vrekt.arc.check.moving.compatibility;
 
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
+import me.vrekt.arc.check.CheckResult;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
@@ -44,7 +45,7 @@ public class Flight17 extends Check {
 
     }
 
-    public boolean runBlockChecks(Player player, MovingData data) {
+    public CheckResult runBlockChecks(Player player, MovingData data) {
         result.reset();
 
         if (!data.wasOnGround()) {
@@ -69,12 +70,12 @@ public class Flight17 extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
 
         }
@@ -83,15 +84,15 @@ public class Flight17 extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), data.getPreviousLocation());
             }
         }
 
-        return result.failed();
+        return result;
     }
 
 
-    public boolean check(Player player, MovingData data) {
+    public CheckResult check(Player player, MovingData data) {
         result.reset();
 
         Location ground = data.getGroundLocation();
@@ -138,7 +139,7 @@ public class Flight17 extends Check {
             }
 
             if (vertical > getMaxJump(player)) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player), from);
             }
         }
 
@@ -182,7 +183,7 @@ public class Flight17 extends Check {
                 }
             }
         }
-        return result.failed();
+        return result;
     }
 
     /**
