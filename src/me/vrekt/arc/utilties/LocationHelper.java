@@ -15,30 +15,25 @@ public class LocationHelper {
      * around us.
      *
      * @param location the location we traveled to.
+     * @param vertical the players vertical speed.
      * @return whether or not were on the ground. true if we are.
      */
     public static boolean isOnGround(Location location, double vertical) {
         boolean onGround = false;
 
         // determine if we are already being supported without expanding the location.
-        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
-        Block groundBlock = subtractedGround.getBlock();
+        Block groundBlock = location.getBlock().getRelative(BlockFace.DOWN);
 
         boolean hasClimbable = groundBlock.getType().equals(Material.LADDER);
+        boolean isOnOddBlock = isOnStair(groundBlock.getLocation()) || isOnSlab(groundBlock.getLocation()) || (MaterialHelper.isFence
+                (groundBlock
+                        .getType())
+                || MaterialHelper.isFenceGate(groundBlock.getType()));
 
-        if (groundBlock.getType().isSolid() || hasClimbable && vertical == 0.0) {
+        if (groundBlock.getType().isSolid() || hasClimbable && vertical == 0.0 || isOnOddBlock) {
             // solid block found, return.
             return true;
         }
-
-        // fix for stair/fence detection.
-        Location modifiedGround = location.clone();
-        Block modifiedGroundBlock = modifiedGround.getBlock().getRelative(BlockFace.DOWN);
-        if (MaterialHelper.isFence(modifiedGroundBlock.getType()) || MaterialHelper.isFenceGate(modifiedGroundBlock.getType()) ||
-                modifiedGroundBlock.getType().getData().equals(Stairs.class)) {
-            return true;
-        }
-
         // expand the location and determine if we are being supported by a block.
         double bit = MODIFIER;
         double xbit = bit;
@@ -91,9 +86,6 @@ public class LocationHelper {
             Block block = newGround.getBlock();
             if (block.getType().getData().equals(comparable)) {
                 hasBlock = true;
-                break;
-            }
-            if (expansion == 4) {
                 break;
             }
             xbit = expansion >= 2 ? -bit : bit;

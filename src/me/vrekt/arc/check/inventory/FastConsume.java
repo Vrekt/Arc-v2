@@ -23,6 +23,6 @@ public class FastConsume extends Check {
         long total = now - last;
 
         // check if the time it took to consume the item is less than allowed.
-        return total < consumeTime && checkViolation(player);
+        return total < consumeTime && checkViolation(player, "consume time less than allowed.");
     }
 }

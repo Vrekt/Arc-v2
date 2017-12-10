@@ -6,12 +6,17 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ViolationHandler {
 
     private final Map<Player, ViolationData> VIOLATION_DATA = new HashMap<>();
+    private final List<Player> DEBUG_LISTENERS = new ArrayList<>();
 
     /**
      * @param player the player
@@ -41,7 +46,7 @@ public class ViolationHandler {
      * @param check  the check
      * @return whether or not to cancel.
      */
-    public boolean handleViolation(Player player, CheckType check) {
+    public boolean handleViolation(Player player, CheckType check, String information) {
         ViolationData data = getViolationData(player);
         int violationLevel = data.getViolationLevel(check) + 1;
 
@@ -59,18 +64,59 @@ public class ViolationHandler {
 
         // notify all players with the permission arc.notify.
         if (notify != 0 && violationLevel % notify == 0) {
-            Bukkit.broadcast(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] "
-                    + ChatColor.BLUE + player.getName() + ChatColor.WHITE + " has violated check " + ChatColor.RED
-                    + check.getCheckName() + ChatColor.DARK_GRAY + " (" + ChatColor.RED + violationLevel + ChatColor.DARK_GRAY
-                    + ")", "arc.notify");
+            // filter a list of online players with the permission.
+            Collection<Player> players =
+                    Bukkit.getOnlinePlayers().stream().filter(notifier -> notifier.hasPermission("arc.notify")).collect(Collectors
+                            .toList());
+
+            for (Player notifier : players) {
+                // if we are in the listener list, send the violation with the attached info.
+                if (DEBUG_LISTENERS.contains(notifier)) {
+                    notifier.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] "
+                            + ChatColor.BLUE + player.getName() + ChatColor.WHITE + " has violated check " + ChatColor.RED
+                            + check.getCheckName() + ChatColor.DARK_GRAY + " (" + ChatColor.RED + violationLevel + ChatColor.DARK_GRAY
+                            + ")" + ChatColor.GRAY + " [" + information + "]");
+                } else {
+                    // we're not in the list, send normal violation.
+                    notifier.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] "
+                            + ChatColor.BLUE + player.getName() + ChatColor.WHITE + " has violated check " + ChatColor.RED
+                            + check.getCheckName() + ChatColor.DARK_GRAY + " (" + ChatColor.RED + violationLevel + ChatColor.DARK_GRAY
+                            + ")");
+                }
+            }
         }
 
         if (violationLevel >= ban && bannable) {
             Arc.getArcPlayerManager().scheduleBan(player);
         }
 
-        boolean cancel2 = violationLevel >= cancel && cancellable;
-        return cancel2;
+        return violationLevel >= cancel && cancellable;
+    }
+
+    public void addOrRemoveListener(Player player) {
+        if (DEBUG_LISTENERS.contains(player)) {
+            removeListener(player);
+            return;
+        }
+
+        addListener(player);
+
+    }
+
+    private void addListener(Player player) {
+        DEBUG_LISTENERS.add(player);
+        player.sendMessage(ChatColor.GREEN + "You will now receive debug info.");
+    }
+
+    private void removeListener(Player player) {
+        DEBUG_LISTENERS.remove(player);
+        player.sendMessage(ChatColor.GREEN + "You will not longer receive debug info.");
+    }
+
+    public void clearPlayerData(Player player) {
+        if (DEBUG_LISTENERS.contains(player)) {
+            DEBUG_LISTENERS.remove(player);
+        }
     }
 
 }

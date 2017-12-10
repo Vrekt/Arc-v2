@@ -22,7 +22,7 @@ public class MorePackets extends Check {
         int packets = data.getMovingPackets();
         // check if we have sent more packets than allowed.
         if (packets > maxPackets) {
-            checkViolation(player);
+            checkViolation(player, "sending too many packets");
             if (kickThreshold > packets) {
                 player.kickPlayer("You are sending too many packets.");
                 return false;

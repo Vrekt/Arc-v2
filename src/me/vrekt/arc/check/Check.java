@@ -28,8 +28,8 @@ public abstract class Check {
      * @param player the player
      * @return to cancel or not.
      */
-    protected boolean checkViolation(Player player) {
-        return Arc.getViolationHandler().handleViolation(player, check);
+    protected boolean checkViolation(Player player, String information) {
+        return Arc.getViolationHandler().handleViolation(player, check, information);
     }
 
 }

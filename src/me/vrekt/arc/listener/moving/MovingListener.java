@@ -37,8 +37,6 @@ public class MovingListener implements Listener, ACheckListener {
         Location from = event.getFrom();
         Location to = event.getTo();
 
-        Location setback = null;
-
         data.setPreviousLocation(from);
         data.setCurrentLocation(to);
 

@@ -39,7 +39,7 @@ public class Flight17 extends Check {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
-                checkViolation(player);
+                checkViolation(player, "hovering off ground, hover");
             }
         }
 
@@ -70,12 +70,12 @@ public class Flight17 extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "ascending too fast, ladder_ascend"), data.getPreviousLocation());
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
             }
 
         }
@@ -84,7 +84,7 @@ public class Flight17 extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "descending too fast, ladder_descend"), data.getPreviousLocation());
             }
         }
 
@@ -133,13 +133,20 @@ public class Flight17 extends Check {
 
         // Make sure we're not jumping too high or for too long.
         if (hasActualVelocity && isAscending) {
+
+            double distance = LocationHelper.distanceVertical(ground, to);
+            // distance is pretty high, that's not right.
+            if (distance >= 1.4) {
+                result.set(checkViolation(player, "ascending too high, ascending_distance"));
+            }
+
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "ascending for too long, ascending_move"));
             }
 
             if (vertical > getMaxJump(player)) {
-                result.set(checkViolation(player), from);
+                result.set(checkViolation(player, ""), from);
             }
         }
 
@@ -153,7 +160,7 @@ public class Flight17 extends Check {
 
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "vertical not changing, descend_delta"));
             }
 
             // calculate expected falling speed.
@@ -162,7 +169,7 @@ public class Flight17 extends Check {
             // make sure we've been gliding.
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             if (distFromGround > 1.6 && difference > 0.01) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "descending move not expected, descending_expected"));
             }
 
         }
@@ -178,7 +185,7 @@ public class Flight17 extends Check {
                 Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
-                    boolean cancel = checkViolation(player);
+                    boolean cancel = checkViolation(player, "clipped through a solid block, vclip_solid");
                     result.set(cancel);
                 }
             }

@@ -28,13 +28,13 @@ public class PacketListener implements ACheckListener {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
 
-                // Update ground info.
-                WrapperPlayClientFlying flying = new WrapperPlayClientFlying(event.getPacket());
-                data.setFlyingClientOnGround(flying.getOnGround());
-
                 if (data.cancelMovingPackets()) {
                     event.setCancelled(true);
                 }
+
+                // Update ground info.
+                WrapperPlayClientFlying flying = new WrapperPlayClientFlying(event.getPacket());
+                data.setFlyingClientOnGround(flying.getOnGround());
 
                 // Update packet info.
                 data.setMovingPackets(data.getMovingPackets() + 1);
@@ -51,6 +51,10 @@ public class PacketListener implements ACheckListener {
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
+
+                if (data.cancelMovingPackets()) {
+                    event.setCancelled(true);
+                }
 
                 // Update ground info.
                 if (event.getPacket().getType().equals(PacketType.Play.Client.POSITION)) {

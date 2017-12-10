@@ -43,7 +43,7 @@ public class Flight extends Check {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "hovering off the ground, hover"));
             }
         }
 
@@ -74,12 +74,12 @@ public class Flight extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "ascending too fast, ladder_ascend"), data.getPreviousLocation());
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
             }
 
         }
@@ -88,7 +88,7 @@ public class Flight extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                result.set(checkViolation(player), data.getPreviousLocation());
+                result.set(checkViolation(player, "descending too fast, ladder_descend"), data.getPreviousLocation());
             }
         }
 
@@ -107,6 +107,7 @@ public class Flight extends Check {
         boolean isClimbing = data.isClimbing();
 
         boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
+
         boolean inLiquid = LocationHelper.isInLiquid(to);
         boolean onGround = data.isOnGround();
 
@@ -150,7 +151,7 @@ public class Flight extends Check {
 
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
-                .SLIMEBLOCK);
+                .SLIMEBLOCK) && !isClimbing && !inLiquid;
         boolean hasActualVelocity = !isClimbing && !inLiquid && player.getVehicle() == null &&
                 !velocityModifier && !hasVelocity;
 
@@ -167,7 +168,7 @@ public class Flight extends Check {
             double last = data.getVelocityData().getLastVelocity();
             if (velocity > last && ascendingMoves > maxAscendTime) {
                 // were ascending too high, flag.
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "ascending too high, ascending_slimeblock"));
             }
 
         }
@@ -177,19 +178,20 @@ public class Flight extends Check {
             double distance = LocationHelper.distanceVertical(ground, to);
             // distance is pretty high, that's not right.
             if (distance >= 1.4) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "ascending too high, ascending_distance"));
             }
 
             // check ascend time.
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "ascending for too long, ascending_move"));
             }
 
             // jumping too high
             if (vertical > getMaxJump(player)) {
-                result.set(checkViolation(player), from);
+                result.set(checkViolation(player, "vertical too high, vertical_jump"), from);
             }
+
         }
 
         // make sure were actually falling.
@@ -202,17 +204,18 @@ public class Flight extends Check {
 
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
-                result.set(checkViolation(player));
+                result.set(checkViolation(player, "vertical not changing, descend_delta"));
             }
-            // TODO: FIX
             // calculate expected falling speed.
-            double expected = Math.abs((Math.pow(0.98, data.getAirTicks())) - 1) * 3.92;
+            double hdist = LocationHelper.distanceHorizontal(from, to);
+            double expected = Math.abs(Math.pow(0.98, data.getAirTicks()) - 1) * 3.92 - hdist;
             double difference = Math.abs(expected - vertical);
-            // make sure we've been gliding.
+
+            // make sure we are far enough from the ground to start checking.
             double distFromGround = LocationHelper.distanceVertical(ground, to);
-            if (distFromGround > 1.6 && difference > 0.01) {
-                player.sendMessage("DIFF: " + difference);
-                result.set(checkViolation(player));
+            if (distFromGround > 1.6 && difference > 0.1) {
+                data.setAirTicks(0);
+                result.set(checkViolation(player, "descending move not expected, descend_expected"));
             }
         }
 
@@ -228,7 +231,8 @@ public class Flight extends Check {
                 Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
-                    boolean failed = checkViolation(player);
+                    player.sendMessage("S");
+                    boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
                     if (failed) {
                         // dont set the result because we want a different set-back
                         player.teleport(from, PlayerTeleportEvent.TeleportCause.PLUGIN);

@@ -30,6 +30,8 @@ public class PlayerListener implements Listener {
         FightData.removeData(player);
         InventoryData.removeData(player);
 
+        Arc.getViolationHandler().clearPlayerData(player);
+
     }
 
     /**

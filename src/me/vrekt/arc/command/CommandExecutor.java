@@ -1,5 +1,6 @@
 package me.vrekt.arc.command;
 
+import me.vrekt.arc.command.commands.CommandDebug;
 import me.vrekt.arc.command.commands.CommandInfo;
 import me.vrekt.arc.command.commands.CommandSummary;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ public class CommandExecutor {
         // add commands
         COMMAND_LIST.add(new CommandInfo());
         COMMAND_LIST.add(new CommandSummary());
+        COMMAND_LIST.add(new CommandDebug());
     }
 
     /**
