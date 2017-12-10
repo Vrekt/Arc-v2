@@ -33,4 +33,15 @@ public class ViolationData {
         CHECK_VIOLATIONS.clear();
     }
 
+    /**
+     * @return the total VL level of all checks.
+     */
+    public int getTotalLevel() {
+        int level = 0;
+        for (int i : CHECK_VIOLATIONS.values()) {
+            level += i;
+        }
+        return level + CHECK_VIOLATIONS.keySet().size();
+    }
+
 }
