@@ -21,14 +21,15 @@ public class LocationHelper {
     public static boolean isOnGround(Location location, double vertical) {
         boolean onGround = false;
 
-        // determine if we are already being supported without expanding the location.
-        Block groundBlock = location.getBlock().getRelative(BlockFace.DOWN);
+        // get two different block locations.
+        Block oddBlock = location.getBlock().getRelative(BlockFace.DOWN);
+
+        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
+        Block groundBlock = subtractedGround.getBlock();
 
         boolean hasClimbable = groundBlock.getType().equals(Material.LADDER);
-        boolean isOnOddBlock = isOnStair(groundBlock.getLocation()) || isOnSlab(groundBlock.getLocation()) || (MaterialHelper.isFence
-                (groundBlock
-                        .getType())
-                || MaterialHelper.isFenceGate(groundBlock.getType()));
+        boolean isOnOddBlock = isOnStair(oddBlock.getLocation()) || isOnSlab(oddBlock.getLocation()) || (MaterialHelper.isFence(oddBlock.getType())
+                || MaterialHelper.isFenceGate(oddBlock.getType()));
 
         if (groundBlock.getType().isSolid() || hasClimbable && vertical == 0.0 || isOnOddBlock) {
             // solid block found, return.

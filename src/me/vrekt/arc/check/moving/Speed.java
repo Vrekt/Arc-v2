@@ -10,9 +10,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class Speed extends Check {
-    private final double MAX_SPEED_JUMP_BOOST = 0.6122;
-    private final double MAX_SPEED_JUMP = 0.58499359761931193;
-
 
     public Speed() {
         super(CheckType.SPEED);
@@ -22,74 +19,40 @@ public class Speed extends Check {
         result.reset();
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
-        Location setback = data.getSetback();
 
         boolean onGround = data.isOnGround();
         int groundTicks = data.getGroundTime();
 
-        double thisMove = LocationHelper.distance(from, to);
+        if (onGround) {
+            groundTicks++;
+            data.setGroundTime(groundTicks);
+        }
+
+        double thisMove = LocationHelper.distanceHorizontal(from, to);
         double baseMove = getBaseMoveSpeed(player);
         double vertical = data.getVerticalSpeed();
 
-        if (onGround && groundTicks > 1) {
+        if (!onGround) {
+            data.setGroundTime(0);
+            groundTicks = 0;
+        }
+
+        if (onGround && groundTicks >= 5) {
+            // expected ground.
             double expected = thisMove / data.getGroundTime() + baseMove;
 
-            // player.sendMessage("MOVE: " + thisMove + " EX: " + expected);
             if (thisMove > expected) {
-                // result.set(checkViolation(player, "Moving too fast.", setback));
-            }
-
-            // check if we are jumping with a block above us
-            if (vertical > 0.0 && LocationHelper.isUnderBlock(to)) {
-                expected = thisMove / data.getGroundTime() + MAX_SPEED_JUMP - vertical;
+                result.set(checkViolation(player, "Moving too fast, onground_expected"));
             }
 
         }
 
+        // if we didnt fail set our setback.
         if (!result.failed()) {
             data.setSetback(to);
         }
 
         return result.failed();
-        //  player.sendMessage("MOVE: " + thisMove);
-
-        // onGround checks, these include normal speed checks, ice checks, etc.
-       /* if (onGround) {
-            boolean hasGround = groundTime >= 3;
-            if (hasGround) {
-                if (thisMove > baseMove) {
-                    failed = checkViolation(player, "Moving too fast.", setback);
-                }
-            }
-            data.setGroundTime(groundTime >= 8 ? 8 : groundTime + 1);
-        } else {
-            data.setGroundTime(0);
-        }
-
-        // offground checks, includes hop checks, ice, etc.
-        if (!onGround) {
-
-            // calculate current take-off stage.
-            double fromGround = LocationHelper.distanceVertical(data.getGroundLocation(), to);
-            // fromGround should be around 0.41-0.42 (a normal jump) when we get a speed boost. (0.61)
-            // generally, this is the max jump-move (0.58499359761931193) but sometimes you get boosted up to 0.61
-
-            // "boost jump"
-            if (fromGround <= 0.42) {
-                if (thisMove > MAX_SPEED_JUMP_BOOST) {
-                    failed = checkViolation(player, "Moving too fast.", setback);
-                }
-            } else if (fromGround > 0.42) {
-                if (thisMove > MAX_SPEED_JUMP) {
-                    failed = checkViolation(player, "Moving too fast.", setback);
-                }
-            }
-        }
-
-        // if we didn't fail, set our safe location to current.
-        if (!failed && onGround) {
-            data.setSetback(from);
-        }*/
     }
 
     /**

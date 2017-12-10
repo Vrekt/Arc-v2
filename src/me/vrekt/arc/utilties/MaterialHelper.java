@@ -36,7 +36,7 @@ public class MaterialHelper {
      */
     public static boolean isFenceGate(Material type) {
         switch (type) {
-            case FENCE:
+            case FENCE_GATE:
             case ACACIA_FENCE_GATE:
             case BIRCH_FENCE_GATE:
             case DARK_OAK_FENCE_GATE:

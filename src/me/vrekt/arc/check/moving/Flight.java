@@ -231,7 +231,6 @@ public class Flight extends Check {
                 Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
-                    player.sendMessage("S");
                     boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
                     if (failed) {
                         // dont set the result because we want a different set-back

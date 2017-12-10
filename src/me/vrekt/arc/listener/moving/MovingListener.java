@@ -133,7 +133,11 @@ public class MovingListener implements Listener, ACheckListener {
             if (canCheckNoFall) {
                 NO_FALL.check(player, data);
             }
-            SPEED.check(player, data);
+
+            boolean failed = SPEED.check(player, data);
+            if (failed) {
+                event.setTo(data.getSetback());
+            }
         }
 
     }
