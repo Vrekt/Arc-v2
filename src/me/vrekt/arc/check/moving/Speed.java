@@ -42,9 +42,20 @@ public class Speed extends Check {
             double expected = thisMove / data.getGroundTime() + baseMove;
 
             if (thisMove > expected) {
-                result.set(checkViolation(player, "Moving too fast, onground_expected"));
+                result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
             }
 
+        }
+
+        if (!onGround) {
+            boolean iceLiftOff = LocationHelper.isOnIce(to);
+            // handle ice jumping
+            if (iceLiftOff) {
+                if (thisMove > 0.518) {
+                    result.set(checkViolation(player, "Moving too fast, offground_ice"));
+                }
+                //   player.sendMessage("THISMOVE: " + thisMove);
+            }
         }
 
         // if we didnt fail set our setback.

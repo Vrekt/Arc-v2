@@ -207,4 +207,12 @@ public class LocationHelper {
         return location.getBlock().isLiquid();
     }
 
+    /**
+     * @return if we are on ice.
+     */
+    public static boolean isOnIce(Location location) {
+        Block block = location.getBlock().getRelative(0, -2, 0);
+        return block.getType() == Material.ICE || block.getType() == Material.PACKED_ICE;
+    }
+
 }
