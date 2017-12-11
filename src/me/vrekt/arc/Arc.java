@@ -54,6 +54,12 @@ public class Arc extends JavaPlugin {
             saveDefaultConfig();
         }
 
+
+        if (Bukkit.getBukkitVersion().contains("1.7")) {
+            getLogger().info("Switching to 1.7 compat checks and listeners.");
+            COMPATIBILITY = true;
+        }
+
         checkManager = new CheckManager(getConfig());
         checkManager.initializeAllChecks();
         ARC_CONFIGURATION.read(getConfig());
@@ -61,11 +67,6 @@ public class Arc extends JavaPlugin {
         arcPlayerManager = new ArcPlayerManager();
 
         getLogger().info("Checking spigot version....");
-
-        if (Bukkit.getBukkitVersion().contains("1.7")) {
-            getLogger().info("Switching to 1.7 compat checks and listeners.");
-            COMPATIBILITY = true;
-        }
 
         new MovingUpdateTask().runTaskTimer(this, 0, 1);
         getServer().getPluginManager().registerEvents(new FightListener(), this);
