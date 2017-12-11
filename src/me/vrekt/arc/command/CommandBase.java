@@ -16,6 +16,11 @@ public class CommandBase implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
+        if (!commandSender.hasPermission("arc.administrator")) {
+            commandSender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            return true;
+        }
+
         Player player = (Player) commandSender;
         if (strings.length >= 1) {
             String command = strings[0];
