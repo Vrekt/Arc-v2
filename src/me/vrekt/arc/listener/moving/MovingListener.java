@@ -93,9 +93,6 @@ public class MovingListener implements Listener, ACheckListener {
             if (canCheckFlight) {
                 // get the result and cancel if there is an alternate setback.
                 CheckResult flightResult;
-                if (FLIGHT_17 == null) {
-                    Arc.getPlugin().getLogger().info("nULL");
-                }
                 if (compatibility) {
                     flightResult = FLIGHT_17.check(player, data);
                 } else {
