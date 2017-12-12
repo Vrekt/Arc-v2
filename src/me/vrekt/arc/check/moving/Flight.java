@@ -8,7 +8,9 @@ import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.data.moving.VelocityData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffectType;
@@ -105,6 +107,7 @@ public class Flight extends Check {
         boolean isAscending = data.isAscending();
         boolean isDescending = data.isDescending();
         boolean isClimbing = data.isClimbing();
+        boolean hasLadder = to.getBlock().getRelative(BlockFace.DOWN).getType() == Material.LADDER;
 
         boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
 
@@ -195,7 +198,8 @@ public class Flight extends Check {
         }
 
         // make sure were actually falling.
-        if (hasActualVelocity && isDescending) {
+        if (hasActualVelocity && isDescending && !hasLadder) {
+
             int descendMoves = data.getDescendingMoves() + 1;
             data.setDescendingMoves(descendMoves);
 
@@ -207,14 +211,14 @@ public class Flight extends Check {
                 result.set(checkViolation(player, "vertical not changing, descend_delta"));
             }
             // calculate expected falling speed.
-            double hdist = LocationHelper.distanceHorizontal(from, to);
-            double expected = Math.abs(Math.pow(0.98, data.getAirTicks()) - 1) * 3.92 - hdist;
+            //  double hdist = LocationHelper.distanceHorizontal(from, to) * 0.98;
+            double expected = Math.abs(Math.pow(0.98, data.getAirTicks()) - 1) * 3.92;
             double difference = Math.abs(expected - vertical);
 
             // make sure we are far enough from the ground to start checking.
             double distFromGround = LocationHelper.distanceVertical(ground, to);
-            if (distFromGround > 1.6 && difference > 0.1) {
-                data.setAirTicks(0);
+            // TODO: temp fix.
+            if (distFromGround > 1.6 && difference > 0.6) {
                 result.set(checkViolation(player, "descending move not expected, descend_expected"));
             }
         }

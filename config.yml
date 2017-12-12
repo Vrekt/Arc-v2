@@ -55,10 +55,10 @@ morepackets:
 
   # What VL should we notify at? '1' indicates everytime,
   # '2' Will indicate we should only alert if the VL is divisible by 2.
-  notify: 1
+  notify: 8
 
   # Max amount of packets allowed per second. (Modify this if you have laggy players.)
-  max-packets: 23
+  max-packets: 30
 
   # Kick the player if the packets per second exceeds this limit.
   max-packets-kick: 50

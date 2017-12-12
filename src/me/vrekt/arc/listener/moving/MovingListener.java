@@ -7,6 +7,7 @@ import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.NoFall;
 import me.vrekt.arc.check.moving.Speed;
 import me.vrekt.arc.check.moving.compatibility.Flight17;
+import me.vrekt.arc.check.moving.compatibility.Speed17;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.LocationHelper;
@@ -25,6 +26,7 @@ public class MovingListener implements Listener, ACheckListener {
 
     private final NoFall NO_FALL = (NoFall) CHECK_MANAGER.getCheck(CheckType.NOFALL);
     private final Speed SPEED = (Speed) CHECK_MANAGER.getCheck(CheckType.SPEED);
+    private final Speed17 SPEED_17 = (Speed17) CHECK_MANAGER.getCheck(CheckType.SPEED_17);
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMove(PlayerMoveEvent event) {
@@ -140,9 +142,19 @@ public class MovingListener implements Listener, ACheckListener {
                 NO_FALL.check(player, data);
             }
 
-            boolean failed = SPEED.check(player, data);
-            if (failed) {
-                event.setTo(data.getSetback());
+            boolean canCheckSpeed = CHECK_MANAGER.canCheckPlayer(player, CheckType.SPEED);
+            if (canCheckSpeed) {
+                boolean failed;
+                if (compatibility) {
+                    failed = SPEED_17.check(player, data);
+                } else {
+                    failed = SPEED.check(player, data);
+                }
+
+                if (failed) {
+                    event.setTo(data.getSetback());
+                }
+
             }
         }
 

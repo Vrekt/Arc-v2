@@ -20,6 +20,7 @@ public class Regeneration extends Check {
             return false;
         }
 
+        // time = 3400
         long now = System.currentTimeMillis();
         long past = data.getLastHealthEvent();
         long timeSince = now - past;

@@ -10,6 +10,7 @@ import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
 import me.vrekt.arc.check.moving.Speed;
 import me.vrekt.arc.check.moving.compatibility.Flight17;
+import me.vrekt.arc.check.moving.compatibility.Speed17;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -66,6 +67,7 @@ public class CheckManager {
         // Add 1.7 compat checks (if needed)
         if (Arc.COMPATIBILITY) {
             CHECKS.add(new Flight17());
+            CHECKS.add(new Speed17());
         } else {
             CHECKS.add(new Flight());
         }

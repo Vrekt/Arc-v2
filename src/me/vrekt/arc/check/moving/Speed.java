@@ -104,18 +104,15 @@ public class Speed extends Check {
 
             // normal checks no ice.
             if (!isOnIce && iceTime == 0) {
-                double stageExpected = vertical > 0.26 && vertical < 0.40 ? 0.017 : vertical < 0.26 ? 0.026 : vertical >= 0.41 ? 0.163 :
-                        0.03;
-                double expected = thisMove / data.getAirTicks() + (baseMove + (vertical * baseMove)) + stageExpected;
-                if (Double.isInfinite(expected)) {
-                    // return, we dont have the required data yet.
-                    return false;
+                // get the jump stage
+                double stage = vertical == 0.0 ? 0.049 : vertical < 0.34 ? 0.08 : 0.325;
+                double expected = (baseMove + stage);
+
+                // too fast, flag.
+                if (thisMove > expected) {
+                    result.set(checkViolation(player, "Moving too fast, offground_expected m=" + thisMove + " e=" + expected));
                 }
 
-                if (thisMove > expected) {
-                    result.set(checkViolation(player, "Moving too fast, offground m=" + thisMove + " e=" + expected + " stage=" +
-                            stageExpected));
-                }
             }
         }
 
