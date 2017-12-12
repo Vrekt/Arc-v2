@@ -16,7 +16,7 @@ Want to contribute with a change or new check? Open a pull request with your cha
 # Features
 Arc currently features these checks
 
- * Movement Checks
+* Movement Checks
   * Flight - this check blocks all types of flight including glide, ascension, hover, ladder, etc.
   * MorePackets - this is an advanced check that monitors how many packets the player is sending to prevent Speed, Regeneration, other malicious stuff.
   * Speed - this check monitors the movement of a player to make sure they are not going faster than allowed.
