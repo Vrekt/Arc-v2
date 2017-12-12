@@ -104,7 +104,10 @@ public class CommandSummary extends Command {
 
         // set item flags and lore.
         metaRecord.setLore(info);
-        metaRecord.addItemFlags(ItemFlag.values());
+        if (!Arc.COMPATIBILITY) {
+            // not supported in 1.7.10
+            metaRecord.addItemFlags(ItemFlag.values());
+        }
         itemRecord.setItemMeta(metaRecord);
 
         itemSword.setItemMeta(metaSword);

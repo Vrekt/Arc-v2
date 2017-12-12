@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffectType;
 
 public class Flight extends Check {
@@ -236,10 +235,8 @@ public class Flight extends Check {
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
                     boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                    if (failed) {
-                        // dont set the result because we want a different set-back
-                        player.teleport(from, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    }
+                    result.set(failed, from);
+
                 }
             }
         }
