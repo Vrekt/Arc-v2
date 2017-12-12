@@ -20,47 +20,108 @@ public class Speed extends Check {
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
 
+        boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
         boolean onGround = data.isOnGround();
         int groundTicks = data.getGroundTime();
-
-        if (onGround) {
-            groundTicks++;
-            data.setGroundTime(groundTicks);
-        }
 
         double thisMove = LocationHelper.distanceHorizontal(from, to);
         double baseMove = getBaseMoveSpeed(player);
         double vertical = data.getVerticalSpeed();
+
+        // handle groundTick stuff.
+        if (onGround) {
+            groundTicks++;
+            data.setGroundTime(groundTicks >= 8 ? 8 : groundTicks);
+        }
 
         if (!onGround) {
             data.setGroundTime(0);
             groundTicks = 0;
         }
 
-        if (onGround && groundTicks >= 5) {
-            // expected ground.
-            double expected = thisMove / data.getGroundTime() + baseMove;
+        if (onGround && !velocityModifier) {
+            // Check if we have a block above us.
+            boolean hasBlock = LocationHelper.isUnderBlock(to);
+            boolean hasIce = LocationHelper.isOnIce(to);
 
-            if (thisMove > expected) {
-                result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
+            // modify ground time.
+            if (hasBlock) {
+                if (vertical > 0.0) {
+                    groundTicks = hasIce ? 0 : 2;
+                    data.setGroundTime(groundTicks);
+                }
             }
 
+            // this does not account for jumping.
+            double expected = thisMove / data.getGroundTime() + baseMove;
+
+            if (hasBlock) {
+                // TODO: Instead of magic values try to calculate an expected.
+                // we have a block, check if we are jumping.
+                if (vertical > 0.0) {
+                    // check if we are on ice.
+                    if (hasIce) {
+                        // we have ice and we are jumping lets adjust and check.
+                        double iceExpected = 0.913;
+                        if (thisMove > iceExpected) {
+                            result.set(checkViolation(player, "Moving too fast, onground_ice_block m=" + thisMove + " e=" + iceExpected));
+                        }
+                    } else {
+                        // no ice and jumping.
+                        double jumpingExpected = 0.6699;
+                        if (thisMove > jumpingExpected) {
+                            result.set(checkViolation(player, "Moving too fast, onground_block m=" + thisMove + " e=" + jumpingExpected));
+                        }
+                    }
+                }
+            }
+
+            // make sure we've actually been onGround, without block jumps, etc.
+            if (groundTicks >= 5) {
+                // no block, normal check.
+                if (thisMove > expected) {
+                    result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
+                }
+
+            }
         }
 
         if (!onGround) {
-            boolean iceLiftOff = LocationHelper.isOnIce(to);
-            // handle ice jumping
-            if (iceLiftOff) {
-                if (thisMove > 0.518) {
-                    result.set(checkViolation(player, "Moving too fast, offground_ice"));
+            boolean isOnIce = LocationHelper.isOnIce(to);
+            int iceTime = data.getIceTime();
+            if (!isOnIce) {
+                data.setIceTime(iceTime > 0 ? iceTime - 1 : 0);
+            }
+
+            // check if we have been 'launched' by ice.
+            if (isOnIce) {
+                data.setIceTime(8);
+                double iceExpected = 0.58;
+                if (thisMove > iceExpected) {
+                    result.set(checkViolation(player, "Moving too fast, offground_ice m=" + thisMove + " e=" + iceExpected));
                 }
-                //   player.sendMessage("THISMOVE: " + thisMove);
+            }
+
+            // normal checks no ice.
+            if (!isOnIce && iceTime == 0) {
+                double stageExpected = vertical > 0.26 && vertical < 0.40 ? 0.017 : vertical < 0.26 ? 0.026 : vertical >= 0.41 ? 0.163 :
+                        0.03;
+                double expected = thisMove / data.getAirTicks() + (baseMove + (vertical * baseMove)) + stageExpected;
+                if (Double.isInfinite(expected)) {
+                    // return, we dont have the required data yet.
+                    return false;
+                }
+
+                if (thisMove > expected) {
+                    result.set(checkViolation(player, "Moving too fast, offground m=" + thisMove + " e=" + expected + " stage=" +
+                            stageExpected));
+                }
             }
         }
 
         // if we didnt fail set our setback.
         if (!result.failed()) {
-            data.setSetback(to);
+            data.setSetback(from);
         }
 
         return result.failed();
@@ -82,22 +143,6 @@ public class Speed extends Check {
         }
 
         return baseSpeed;
-    }
-
-    /**
-     * Return if we have a speed potion active or not.
-     *
-     * @param player the player
-     * @return if the player has a speed potion
-     */
-    private boolean hasSpeedPotion(Player player) {
-        for (PotionEffect ef : player.getActivePotionEffects()) {
-            if (ef.getType().equals(PotionEffectType.SPEED)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

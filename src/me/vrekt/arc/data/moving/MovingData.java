@@ -54,6 +54,7 @@ public class MovingData {
     private int ascendingMoves, descendingMoves;
     private int movingPackets;
     private int groundTime;
+    private int iceTime;
 
     private VelocityData velocityData = new VelocityData();
 
@@ -221,4 +222,11 @@ public class MovingData {
         this.groundTime = groundTime;
     }
 
+    public int getIceTime() {
+        return iceTime;
+    }
+
+    public void setIceTime(int iceTime) {
+        this.iceTime = iceTime;
+    }
 }

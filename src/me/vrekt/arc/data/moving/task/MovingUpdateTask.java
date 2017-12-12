@@ -13,7 +13,8 @@ public class MovingUpdateTask extends BukkitRunnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             MovingData data = MovingData.getData(player);
             if (!data.isOnGround()) {
-                data.setAirTicks(data.getAirTicks() + 1);
+                int airTicks = data.getAirTicks();
+                data.setAirTicks(airTicks >= 14 ? 14 : airTicks + 1);
             }
         }
     }

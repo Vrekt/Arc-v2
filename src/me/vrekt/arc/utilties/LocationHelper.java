@@ -7,6 +7,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class LocationHelper {
     private static final double MODIFIER = 0.3;
 
@@ -95,6 +98,44 @@ public class LocationHelper {
 
         return hasBlock;
     }
+
+    /**
+     * Check if a block is under the player.
+     *
+     * @param location  the location
+     * @param materials the materials to check against.
+     * @return true if the block is under the player.
+     */
+    public static boolean hasBlock(Location location, Material... materials) {
+        boolean hasBlock = false;
+
+        List<Material> mat = Arrays.asList(materials);
+
+        // check if were already under that block.
+        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
+        Block groundBlock = subtractedGround.getBlock();
+        if (mat.contains(groundBlock.getType())) {
+            return true;
+        }
+
+        double bit = MODIFIER;
+        double xbit = bit;
+        double zbit = bit;
+
+        for (int expansion = 0; expansion < 5; expansion++) {
+            Location newGround = location.clone().add(xbit, -MODIFIER, zbit);
+            Block block = newGround.getBlock();
+            if (mat.contains(block.getType())) {
+                hasBlock = true;
+                break;
+            }
+            xbit = expansion >= 2 ? -bit : bit;
+            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+        }
+
+        return hasBlock;
+    }
+
 
     /**
      * @param location the location
@@ -211,8 +252,12 @@ public class LocationHelper {
      * @return if we are on ice.
      */
     public static boolean isOnIce(Location location) {
-        Block block = location.getBlock().getRelative(0, -2, 0);
-        return block.getType() == Material.ICE || block.getType() == Material.PACKED_ICE;
+        Block down = location.getBlock().getRelative(BlockFace.DOWN);
+        boolean relativeDown = down.getType() == Material.ICE || down.getType() == Material.PACKED_ICE;
+
+        Block low = location.getBlock().getRelative(0, -2, 0);
+        boolean relativeLow = low.getType() == Material.ICE || low.getType() == Material.PACKED_ICE;
+        return relativeDown || relativeLow;
     }
 
 }
