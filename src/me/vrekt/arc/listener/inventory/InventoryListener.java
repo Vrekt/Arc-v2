@@ -1,9 +1,12 @@
 package me.vrekt.arc.listener.inventory;
 
+import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.inventory.FastConsume;
 import me.vrekt.arc.data.inventory.InventoryData;
 import me.vrekt.arc.listener.ACheckListener;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,8 +67,18 @@ public class InventoryListener implements Listener, ACheckListener {
         if (inventory.getTitle().contains("Summary for ")) {
             event.setCancelled(true);
 
-            Player player = (Player) event.getWhoClicked();
+            ItemStack item = event.getCurrentItem();
+            Player viewer = (Player) event.getWhoClicked();
+            if (item.getType() == Material.IRON_SWORD) {
+                Player player = Bukkit.getPlayer(inventory.getTitle().split(" ")[2]);
+                if (player == null) {
+                    viewer.sendMessage(ChatColor.RED + "This player has logged out.");
+                    viewer.closeInventory();
+                    return;
+                }
 
+                Arc.getArcPlayerManager().scheduleBan(player);
+            }
 
         }
 
