@@ -10,11 +10,11 @@ import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
+import me.vrekt.arc.wrappers.WrapperPlayClientFlying;
+import me.vrekt.arc.wrappers.WrapperPlayClientPosition;
+import me.vrekt.arc.wrappers.WrapperPlayClientPositionLook;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import packetwrapper.WrapperPlayClientFlying;
-import packetwrapper.WrapperPlayClientPosition;
-import packetwrapper.WrapperPlayClientPositionLook;
 
 public class PacketListener implements ACheckListener {
     private final MorePackets MORE_PACKETS = (MorePackets) Arc.getCheckManager().getCheck(CheckType.MOREPACKETS);
