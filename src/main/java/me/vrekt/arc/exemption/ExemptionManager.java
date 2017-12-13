@@ -50,7 +50,7 @@ public class ExemptionManager {
      * Checks against permission and time exemptions.
      *
      * @param player the player
-     * @param check the check
+     * @param check  the check
      * @return true if we are exempted, false if not.
      */
     private boolean checkCommonExemptions(Player player, CheckType check) {

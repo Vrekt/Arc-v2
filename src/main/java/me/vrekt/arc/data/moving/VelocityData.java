@@ -1,13 +1,8 @@
 package me.vrekt.arc.data.moving;
 
 public class VelocityData {
-    public enum VelocityCause {
-        SLIMEBLOCK, TELEPORT, KNOCKBACK
-    }
-
     private double lastVelocity;
     private double currentVelocity;
-
     private boolean hasVelocity;
     private VelocityCause velocityCause;
 
@@ -41,5 +36,9 @@ public class VelocityData {
 
     public void setVelocityCause(VelocityCause velocityCause) {
         this.velocityCause = velocityCause;
+    }
+
+    public enum VelocityCause {
+        SLIMEBLOCK, TELEPORT, KNOCKBACK
     }
 }

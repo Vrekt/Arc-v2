@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class FightData {
     private static final Map<Player, FightData> DATA_MAP = new HashMap<>();
+    private long lastHealthEvent;
 
     /**
      * Retrieve the players data.
@@ -29,8 +30,6 @@ public class FightData {
             DATA_MAP.remove(player);
         }
     }
-
-    private long lastHealthEvent;
 
     public long getLastHealthEvent() {
         return lastHealthEvent;
