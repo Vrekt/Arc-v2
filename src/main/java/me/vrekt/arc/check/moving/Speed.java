@@ -39,8 +39,8 @@ public class Speed extends Check {
             data.setGroundTime(0);
             groundTicks = 0;
         }
-
-        if (onGround && !velocityModifier) {
+        
+        if (onGround) {
             // Check if we have a block above us.
             boolean hasBlock = LocationHelper.isUnderBlock(to);
             boolean hasIce = LocationHelper.isOnIce(to);
@@ -79,9 +79,16 @@ public class Speed extends Check {
 
             // make sure we've actually been onGround, without block jumps, etc.
             if (groundTicks >= 5) {
+                double stepModifier = velocityModifier ? 0.489 : 0;
                 // no block, normal check.
-                if (thisMove > expected) {
-                    result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
+                if (velocityModifier) {
+                    if (thisMove > stepModifier) {
+                        result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
+                    }
+                } else {
+                    if (thisMove > expected) {
+                        result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
+                    }
                 }
 
             }
