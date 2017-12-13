@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class InventoryData {
     private static final Map<Player, InventoryData> DATA_MAP = new HashMap<>();
+    private long consumeTime;
 
     /**
      * Retrieve the players data.
@@ -29,9 +30,6 @@ public class InventoryData {
             DATA_MAP.remove(player);
         }
     }
-
-
-    private long consumeTime;
 
     public long getConsumeTime() {
         return consumeTime;

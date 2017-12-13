@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 
 public abstract class Check {
 
-    private CheckType check;
     protected CheckResult result = new CheckResult();
+    private CheckType check;
 
     /**
      * @param check the check.

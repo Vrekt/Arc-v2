@@ -1,6 +1,6 @@
 main: me.vrekt.arc.Arc
 name: Arc
-version: 2.0
+version: @version@
 depend: [ProtocolLib]
 
 permissions:

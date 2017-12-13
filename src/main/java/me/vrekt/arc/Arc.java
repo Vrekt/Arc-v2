@@ -23,78 +23,19 @@ import java.io.File;
 
 public class Arc extends JavaPlugin {
 
+    private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
+    private static final ViolationHandler VIOLATION_HANDLER = new ViolationHandler();
+    private static final CommandExecutor COMMAND_EXECUTOR = new CommandExecutor();
+    private static final ArcConfiguration ARC_CONFIGURATION = new ArcConfiguration();
     /**
      * ARC INFO/COMPAT
      **/
     public static boolean COMPATIBILITY = false;
     public static String VERSION = "1.0.3-b1";
-
     private static Plugin thisPlugin;
-
     private static CheckManager checkManager;
     private static PacketListener packetListener;
     private static ArcPlayerManager arcPlayerManager;
-
-    private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
-    private static final ViolationHandler VIOLATION_HANDLER = new ViolationHandler();
-
-    private static final CommandExecutor COMMAND_EXECUTOR = new CommandExecutor();
-    private static final ArcConfiguration ARC_CONFIGURATION = new ArcConfiguration();
-
-    /**
-     * Gets called when the plugin is enabled.
-     */
-    public void onEnable() {
-        thisPlugin = this;
-
-        // read/create the configuration.
-        getLogger().info("Reading configuration...");
-        File config = new File(getDataFolder() + "/config.yml");
-        if (!config.exists()) {
-            saveDefaultConfig();
-        }
-
-
-        if (Bukkit.getBukkitVersion().contains("1.7")) {
-            getLogger().info("Switching to 1.7 compat checks and listeners.");
-            COMPATIBILITY = true;
-        }
-
-        checkManager = new CheckManager(getConfig());
-        checkManager.initializeAllChecks();
-        ARC_CONFIGURATION.read(getConfig());
-
-        arcPlayerManager = new ArcPlayerManager();
-
-        getLogger().info("Checking spigot version....");
-
-        new MovingUpdateTask().runTaskTimer(this, 0, 1);
-        getServer().getPluginManager().registerEvents(new FightListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
-        getServer().getPluginManager().registerEvents(new MovingListener(), this);
-
-        // TODO: New PacketListener might be needed for 1.7 (not sure).
-        packetListener = new PacketListener();
-        packetListener.startListening(this, ProtocolLibrary.getProtocolManager());
-
-        getCommand("arc").setExecutor(new CommandBase());
-
-    }
-
-    /**
-     * Handles cleaning up.
-     */
-    public void onDisable() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            // remove exemption and violation data.
-            VIOLATION_HANDLER.removeViolationData(player);
-            EXEMPTION_MANAGER.clearData(player);
-
-            // TODO: Remove other shit? I mean you really shouldn't reload anyways
-
-        }
-    }
 
     /**
      * @return an instance of Arc.
@@ -151,4 +92,59 @@ public class Arc extends JavaPlugin {
     public static ArcConfiguration getArcConfiguration() {
         return ARC_CONFIGURATION;
     }
+
+    /**
+     * Gets called when the plugin is enabled.
+     */
+    public void onEnable() {
+        thisPlugin = this;
+
+        // read/create the configuration.
+        getLogger().info("Reading configuration...");
+        File config = new File(getDataFolder(), "config.yml");
+        if (!config.exists()) {
+            saveDefaultConfig();
+        }
+
+
+        if (Bukkit.getBukkitVersion().contains("1.7")) {
+            getLogger().info("Switching to 1.7 compat checks and listeners.");
+            COMPATIBILITY = true;
+        }
+
+        checkManager = new CheckManager(getConfig());
+        checkManager.initializeAllChecks();
+        ARC_CONFIGURATION.read(getConfig());
+
+        arcPlayerManager = new ArcPlayerManager();
+
+        getLogger().info("Checking spigot version....");
+
+        new MovingUpdateTask().runTaskTimer(this, 0, 1);
+        getServer().getPluginManager().registerEvents(new FightListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
+        getServer().getPluginManager().registerEvents(new MovingListener(), this);
+
+        // TODO: New PacketListener might be needed for 1.7 (not sure).
+        packetListener = new PacketListener();
+        packetListener.startListening(this, ProtocolLibrary.getProtocolManager());
+
+        getCommand("arc").setExecutor(new CommandBase());
+    }
+
+    /**
+     * Handles cleaning up.
+     */
+    public void onDisable() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // remove exemption and violation data.
+            VIOLATION_HANDLER.removeViolationData(player);
+            EXEMPTION_MANAGER.clearData(player);
+
+            // TODO: Remove other shit? I mean you really shouldn't reload anyways
+
+        }
+    }
+
 }
