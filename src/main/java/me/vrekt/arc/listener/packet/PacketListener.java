@@ -78,6 +78,8 @@ public class PacketListener implements ACheckListener {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
+                FightData data = FightData.getData(player);
+                data.setTotalAttacks(data.getTotalAttacks() + 1);
 
             }
         });

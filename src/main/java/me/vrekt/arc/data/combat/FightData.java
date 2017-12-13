@@ -34,6 +34,9 @@ public class FightData {
     private long lastHealthEvent;
     private long lastArmSwing;
 
+    private int totalAttacks;
+    private long lastAttackCheck;
+
     private Entity attackedEntity;
     private Entity lastAttackedEntity;
 
@@ -67,5 +70,21 @@ public class FightData {
 
     public void setLastArmSwing(long lastArmSwing) {
         this.lastArmSwing = lastArmSwing;
+    }
+
+    public int getTotalAttacks() {
+        return totalAttacks;
+    }
+
+    public void setTotalAttacks(int totalAttacks) {
+        this.totalAttacks = totalAttacks;
+    }
+
+    public long getLastAttackCheck() {
+        return lastAttackCheck;
+    }
+
+    public void setLastAttackCheck(long lastAttackCheck) {
+        this.lastAttackCheck = lastAttackCheck;
     }
 }

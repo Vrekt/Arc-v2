@@ -175,4 +175,10 @@ killaura:
   # Max time allowed before we receive a swing packet, in millis. default: 80
   max-swing-time: 80
 
+  # Max reach distance allowed
+  max-reach: 4.2
+
+  # Max attacks allowed every second
+  max-attacks: 16
+
 
