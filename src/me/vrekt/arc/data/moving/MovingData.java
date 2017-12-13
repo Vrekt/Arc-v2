@@ -55,6 +55,7 @@ public class MovingData {
     private int movingPackets;
     private int groundTime;
     private int iceTime;
+    private int slimeblockTime;
 
     private VelocityData velocityData = new VelocityData();
 
@@ -228,5 +229,13 @@ public class MovingData {
 
     public void setIceTime(int iceTime) {
         this.iceTime = iceTime;
+    }
+
+    public int getSlimeblockTime() {
+        return slimeblockTime;
+    }
+
+    public void setSlimeblockTime(int slimeblockTime) {
+        this.slimeblockTime = slimeblockTime;
     }
 }

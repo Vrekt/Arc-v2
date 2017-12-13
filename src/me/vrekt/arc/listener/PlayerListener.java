@@ -52,6 +52,7 @@ public class PlayerListener implements Listener {
         if (data.isOnGround()) {
             data.setGroundLocation(player.getLocation());
         }
+        data.setSetback(player.getLocation());
 
     }
 

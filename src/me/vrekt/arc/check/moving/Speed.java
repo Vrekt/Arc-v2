@@ -21,6 +21,7 @@ public class Speed extends Check {
         Location to = data.getCurrentLocation();
 
         boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
+
         boolean onGround = data.isOnGround();
         int groundTicks = data.getGroundTime();
 
@@ -88,22 +89,43 @@ public class Speed extends Check {
 
         if (!onGround) {
             boolean isOnIce = LocationHelper.isOnIce(to);
+            boolean isOnSlimeblock = LocationHelper.isOnSlimeblock(to);
+
             int iceTime = data.getIceTime();
             if (!isOnIce) {
+                // update data.
                 data.setIceTime(iceTime > 0 ? iceTime - 1 : 0);
             }
 
-            // check if we have been 'launched' by ice.
+            int slimeblockTime = data.getSlimeblockTime();
+            if (!isOnSlimeblock) {
+                // update data.
+                data.setSlimeblockTime(slimeblockTime > 0 ? slimeblockTime - 1 : 0);
+            }
+
+            // if we are on a slimeblock.
+            if (isOnSlimeblock) {
+                data.setSlimeblockTime(8);
+                // get the jump stage
+                double stage = vertical == 0.0 ? 0.1018 : vertical < 0.34 ? 0.1504 : 0.28;
+                double expected = (baseMove + stage);
+                if (thisMove > expected) {
+                    result.set(checkViolation(player, "Moving too fast, offground_slime m=" + thisMove + " e=" + expected));
+                }
+            }
+
             if (isOnIce) {
+                // check if we have been 'launched' by ice.
                 data.setIceTime(8);
                 double iceExpected = 0.58;
                 if (thisMove > iceExpected) {
                     result.set(checkViolation(player, "Moving too fast, offground_ice m=" + thisMove + " e=" + iceExpected));
                 }
+
             }
 
-            // normal checks no ice.
-            if (!isOnIce && iceTime == 0) {
+            boolean hasModifier = (isOnIce || iceTime > 0) || (isOnSlimeblock || slimeblockTime > 0);
+            if (!hasModifier) {
                 // get the jump stage
                 double stage = vertical == 0.0 ? 0.049 : vertical < 0.34 ? 0.08 : 0.325;
                 double expected = (baseMove + stage);
@@ -112,8 +134,8 @@ public class Speed extends Check {
                 if (thisMove > expected) {
                     result.set(checkViolation(player, "Moving too fast, offground_expected m=" + thisMove + " e=" + expected));
                 }
-
             }
+
         }
 
         // if we didnt fail set our setback.
