@@ -3,6 +3,7 @@ package me.vrekt.arc.listener.combat;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.combat.Criticals;
+import me.vrekt.arc.check.combat.Direction;
 import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.data.combat.FightData;
 import me.vrekt.arc.data.moving.MovingData;
@@ -19,6 +20,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 public class FightListener implements Listener, ACheckListener {
     private final Regeneration REGENERATION = (Regeneration) Arc.getCheckManager().getCheck(CheckType.REGENERATION);
     private final Criticals CRITICALS = (Criticals) Arc.getCheckManager().getCheck(CheckType.CRITICALS);
+    private final Direction DIRECTION = (Direction) Arc.getCheckManager().getCheck(CheckType.DIRECTION);
 
     @EventHandler
     public void onRegen(EntityRegainHealthEvent event) {
@@ -47,20 +49,38 @@ public class FightListener implements Listener, ACheckListener {
         Entity damager = event.getDamager();
 
         if (attacked instanceof Player) {
+            // update our velocity data since our player got hit.
+            // TODO: ignore if no velocity was taken?
             Player player = (Player) attacked;
             MovingData data = MovingData.getData(player);
             data.getVelocityData().setHasVelocity(true);
             data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.KNOCKBACK);
         }
 
+        // check if the player attacked an entity.
         if (damager instanceof Player) {
             Player player = (Player) damager;
+            // make sure the attack is a critical.
             if (FightHelper.isCritical(player)) {
-                boolean cancel = CRITICALS.check(player);
+                // it was, make sure we are not exempt and check.
+                boolean canCheckCriticals = Arc.getCheckManager().canCheckPlayer(player, CheckType.CRITICALS);
+                if (canCheckCriticals) {
+                    boolean cancel = CRITICALS.check(player);
+                    if (cancel) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+
+            // make sure we can check direction.
+            boolean canCheckDirection = Arc.getCheckManager().canCheckPlayer(player, CheckType.DIRECTION);
+            if (canCheckDirection) {
+                boolean cancel = DIRECTION.check(attacked, player);
                 if (cancel) {
                     event.setCancelled(true);
                 }
             }
+
         }
 
     }

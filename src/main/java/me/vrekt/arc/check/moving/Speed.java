@@ -39,7 +39,7 @@ public class Speed extends Check {
             data.setGroundTime(0);
             groundTicks = 0;
         }
-        
+
         if (onGround) {
             // Check if we have a block above us.
             boolean hasBlock = LocationHelper.isUnderBlock(to);
