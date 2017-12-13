@@ -2,8 +2,8 @@ package me.vrekt.arc.violation;
 
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
