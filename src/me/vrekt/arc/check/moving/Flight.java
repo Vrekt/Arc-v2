@@ -176,7 +176,8 @@ public class Flight extends Check {
         }
 
         // Make sure we're not jumping too high or for too long.
-        if (hasActualVelocity && isAscending) {
+        boolean hasFence = LocationHelper.walkedOnFence(to);
+        if (hasActualVelocity && isAscending && !hasFence) {
             double distance = LocationHelper.distanceVertical(ground, to);
             // distance is pretty high, that's not right.
             if (distance >= 1.4) {
