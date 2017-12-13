@@ -7,14 +7,13 @@ public enum CheckType {
     NOFALL(CheckCategory.MOVEMENT, "NoFall"),
     MOREPACKETS(CheckCategory.MOVEMENT, "MorePackets"),
     CRITICALS(CheckCategory.FIGHT, "Criticals"),
-    DIRECTION(CheckCategory.FIGHT, "Direction"),
-    IMPROBABLE(CheckCategory.FIGHT, "Combat Improbable"),
     NOSWING(CheckCategory.FIGHT, "NoSwing"),
     REACH(CheckCategory.FIGHT, "Reach"),
     REGENERATION(CheckCategory.FIGHT, "Regeneration"),
-    FASTCONSUME(CheckCategory.INVENTORY, "Fast Consume"),
+    FASTCONSUME(CheckCategory.INVENTORY, "FastConsume"),
     FLIGHT_17(CheckCategory.MOVEMENT, "Flight"),
-    SPEED_17(CheckCategory.MOVEMENT, "Speed");
+    SPEED_17(CheckCategory.MOVEMENT, "Speed"),
+    KILLAURA(CheckCategory.FIGHT, "KillAura");
 
     private CheckCategory cat;
     private String checkName;
@@ -43,4 +42,10 @@ public enum CheckType {
         return checkName;
     }
 
+    /**
+     * Set the checkname.
+     */
+    public void setCheckName(String checkName) {
+        this.checkName = checkName;
+    }
 }

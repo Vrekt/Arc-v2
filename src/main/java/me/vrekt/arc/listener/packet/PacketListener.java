@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.moving.MorePackets;
+import me.vrekt.arc.data.combat.FightData;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.wrappers.WrapperPlayClientFlying;
@@ -70,6 +71,23 @@ public class PacketListener implements ACheckListener {
                 if (updateAndCheck(player, data)) {
                     event.setCancelled(true);
                 }
+            }
+        });
+
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.USE_ENTITY) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+
+            }
+        });
+
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.ARM_ANIMATION) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+                FightData data = FightData.getData(player);
+                data.setLastArmSwing(System.currentTimeMillis());
             }
         });
 

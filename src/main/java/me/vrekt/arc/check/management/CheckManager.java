@@ -4,7 +4,7 @@ import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.combat.Criticals;
-import me.vrekt.arc.check.combat.Direction;
+import me.vrekt.arc.check.combat.KillAura;
 import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
@@ -77,7 +77,7 @@ public class CheckManager {
         CHECKS.add(new Regeneration());
         CHECKS.add(new Speed());
         CHECKS.add(new Criticals());
-        CHECKS.add(new Direction());
+        CHECKS.add(new KillAura());
 
     }
 

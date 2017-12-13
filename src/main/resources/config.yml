@@ -117,6 +117,24 @@ speed:
   # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
   notify: 1
 
+fastconsume:
+  # Is the check enabled?
+  enabled: true
+
+  # Should we cancel the check?
+  cancel: true
+
+  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  cancel-vl: 0
+
+  # What VL should we ban at? Set this to -1 to disable banning.
+  ban: -1
+
+  # What VL should we notify at? '1' indicates everytime,
+  # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
+  notify: 1
+
+
 criticals:
   # Is the check enabled?
   enabled: true
@@ -134,7 +152,7 @@ criticals:
   # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
   notify: 1
 
-direction:
+killaura:
   # Is the check enabled?
   enabled: true
 
@@ -151,10 +169,10 @@ direction:
   # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
   notify: 1
 
-  # This value is the max yaw difference allowed.
-  max-yaw: 40
+  # Max angle distance allowed to the other entity.
+  max-direction-angle: 1.2
 
-  # This value is the max pitch difference allowed.
-  max-pitch: 40
+  # Max time allowed before we receive a swing packet, in millis. default: 80
+  max-swing-time: 80
 
 

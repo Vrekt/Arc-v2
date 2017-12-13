@@ -3,7 +3,7 @@ package me.vrekt.arc.listener.combat;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.combat.Criticals;
-import me.vrekt.arc.check.combat.Direction;
+import me.vrekt.arc.check.combat.KillAura;
 import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.data.combat.FightData;
 import me.vrekt.arc.data.moving.MovingData;
@@ -20,7 +20,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 public class FightListener implements Listener, ACheckListener {
     private final Regeneration REGENERATION = (Regeneration) Arc.getCheckManager().getCheck(CheckType.REGENERATION);
     private final Criticals CRITICALS = (Criticals) Arc.getCheckManager().getCheck(CheckType.CRITICALS);
-    private final Direction DIRECTION = (Direction) Arc.getCheckManager().getCheck(CheckType.DIRECTION);
+    private final KillAura KILL_AURA = (KillAura) Arc.getCheckManager().getCheck(CheckType.KILLAURA);
 
     @EventHandler
     public void onRegen(EntityRegainHealthEvent event) {
@@ -60,6 +60,11 @@ public class FightListener implements Listener, ACheckListener {
         // check if the player attacked an entity.
         if (damager instanceof Player) {
             Player player = (Player) damager;
+            FightData data = FightData.getData(player);
+
+            data.setLastAttackedEntity(data.getAttackedEntity());
+            data.setAttackedEntity(attacked);
+
             // make sure the attack is a critical.
             if (FightHelper.isCritical(player)) {
                 // it was, make sure we are not exempt and check.
@@ -73,9 +78,9 @@ public class FightListener implements Listener, ACheckListener {
             }
 
             // make sure we can check direction.
-            boolean canCheckDirection = Arc.getCheckManager().canCheckPlayer(player, CheckType.DIRECTION);
-            if (canCheckDirection) {
-                boolean cancel = DIRECTION.check(attacked, player);
+            boolean canCheckKillAura = Arc.getCheckManager().canCheckPlayer(player, CheckType.KILLAURA);
+            if (canCheckKillAura) {
+                boolean cancel = KILL_AURA.check(player, data);
                 if (cancel) {
                     event.setCancelled(true);
                 }

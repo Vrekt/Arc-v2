@@ -1,5 +1,6 @@
 package me.vrekt.arc.data.combat;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -7,7 +8,6 @@ import java.util.Map;
 
 public class FightData {
     private static final Map<Player, FightData> DATA_MAP = new HashMap<>();
-    private long lastHealthEvent;
 
     /**
      * Retrieve the players data.
@@ -31,11 +31,41 @@ public class FightData {
         }
     }
 
+    private long lastHealthEvent;
+    private long lastArmSwing;
+
+    private Entity attackedEntity;
+    private Entity lastAttackedEntity;
+
     public long getLastHealthEvent() {
         return lastHealthEvent;
     }
 
     public void setLastHealthEvent(long lastHealthEvent) {
         this.lastHealthEvent = lastHealthEvent;
+    }
+
+    public Entity getAttackedEntity() {
+        return attackedEntity;
+    }
+
+    public void setAttackedEntity(Entity attackedEntity) {
+        this.attackedEntity = attackedEntity;
+    }
+
+    public Entity getLastAttackedEntity() {
+        return lastAttackedEntity;
+    }
+
+    public void setLastAttackedEntity(Entity lastAttackedEntity) {
+        this.lastAttackedEntity = lastAttackedEntity;
+    }
+
+    public long getLastArmSwing() {
+        return lastArmSwing;
+    }
+
+    public void setLastArmSwing(long lastArmSwing) {
+        this.lastArmSwing = lastArmSwing;
     }
 }
