@@ -90,6 +90,9 @@ public class Arc extends JavaPlugin {
             // remove exemption and violation data.
             VIOLATION_HANDLER.removeViolationData(player);
             EXEMPTION_MANAGER.clearData(player);
+
+            // TODO: Remove other shit? I mean you really shouldn't reload anyways
+
         }
     }
 
