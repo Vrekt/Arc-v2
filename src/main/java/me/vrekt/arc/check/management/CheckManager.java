@@ -6,6 +6,7 @@ import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.check.combat.Criticals;
 import me.vrekt.arc.check.combat.KillAura;
 import me.vrekt.arc.check.combat.Regeneration;
+import me.vrekt.arc.check.inventory.FastConsume;
 import me.vrekt.arc.check.moving.Flight;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.check.moving.NoFall;
@@ -78,6 +79,7 @@ public class CheckManager {
         CHECKS.add(new Speed());
         CHECKS.add(new Criticals());
         CHECKS.add(new KillAura());
+        CHECKS.add(new FastConsume());
 
     }
 

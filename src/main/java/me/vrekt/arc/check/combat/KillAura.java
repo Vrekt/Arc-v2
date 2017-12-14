@@ -74,11 +74,13 @@ public class KillAura extends Check {
         }
         long lastAttack = System.currentTimeMillis() - data.getLastAttackCheck();
         if (lastAttack >= 1000) {
+            // check if we exceeded the max attacks in the last second.
             int totalAttacks = data.getTotalAttacks();
             if (totalAttacks > maxAttacks) {
                 getCheck().setCheckName("Kill Aura " + ChatColor.GRAY + "(Speed)");
                 result.set(checkViolation(player, "Attacking too fast. a=" + totalAttacks + " e=" + maxAttacks));
             }
+            // reset data for next check.
             data.setTotalAttacks(0);
             data.setLastAttackCheck(System.currentTimeMillis());
         }
