@@ -156,8 +156,6 @@ public class Flight extends Check {
             data.getVelocityData().setHasVelocity(false);
         }
 
-        player.sendMessage("V: " + vertical + " L: " + inLiquid + " A: " + isAscending + " D: " + isDescending + " OG: " + onGround);
-
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK) && !isClimbing && !inLiquid;
