@@ -14,7 +14,7 @@ public class MovingUpdateTask extends BukkitRunnable {
             MovingData data = MovingData.getData(player);
             if (!data.isOnGround()) {
                 int airTicks = data.getAirTicks();
-                data.setAirTicks(airTicks >= 21 ? 21 : airTicks + 1);
+                data.setAirTicks(airTicks >= 255 ? 255 : airTicks + 1);
             }
         }
     }

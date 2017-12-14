@@ -272,20 +272,17 @@ public class Flight extends Check {
                 getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
                 result.set(checkViolation(player, "vertical not changing, descend_delta"));
             }
-            // calculate expected falling speed.
-            //  double hdist = LocationHelper.distanceHorizontal(from, to) * 0.98;
-            double expected = Math.abs(Math.pow(0.98, data.getAirTicks()) - 1) * 3.92;
-            double difference = Math.abs(expected - vertical);
+            double glideDifference = vertical - lastVertical;
+            double distance = LocationHelper.distanceVertical(ground, to);
 
-            // make sure we are far enough from the ground to start checking.
-            double distFromGround = LocationHelper.distanceVertical(ground, to);
-            // TODO: temp fix.
-            if (distFromGround > 1.6 && difference > 0.6) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
-                result.set(checkViolation(player, "descending move not expected, descend_expected"));
+            // TODO: improve later, could probably be bypassed.
+            if (distance > 1.6) {
+                if (glideDifference > 0.07 || glideDifference < 0.05) {
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
+                    result.set(checkViolation(player, "vertical not changing, descend_difference"));
+                }
             }
         }
-
 
         getCheck().setCheckName("Flight");
         return result;

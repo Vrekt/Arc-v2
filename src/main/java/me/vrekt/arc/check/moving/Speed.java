@@ -6,7 +6,9 @@ import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Step;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -21,7 +23,8 @@ public class Speed extends Check {
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
 
-        boolean velocityModifier = (LocationHelper.isOnSlab(to) || LocationHelper.isOnSlabJump(to)) || (LocationHelper.isOnStair(to) ||
+        boolean slab = to.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
+        boolean velocityModifier = (LocationHelper.isOnSlab(to) || slab) || (LocationHelper.isOnStair(to) ||
                 LocationHelper
                         .isOnStairJump(to));
 
@@ -84,9 +87,10 @@ public class Speed extends Check {
 
             // make sure we've actually been onGround, without block jumps, etc.
             if (groundTicks >= 5) {
+                boolean hadModifier = from.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
                 double stepModifier = velocityModifier ? 0.489 : 0;
                 // no block, normal check.
-                if (velocityModifier) {
+                if (velocityModifier || hadModifier) {
                     if (thisMove > stepModifier) {
                         getCheck().setCheckName("Speed " + ChatColor.GRAY + "(onGround)");
                         result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));

@@ -246,7 +246,7 @@ public class LocationHelper {
      * @returnif we are on a step but its lower than 0.3
      */
     public static boolean isOnSlabJump(Location location) {
-        return hasBlock(location, Step.class, 1);
+        return hasBlock(location, Step.class, 0.5);
     }
 
     /**
