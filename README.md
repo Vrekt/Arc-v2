@@ -37,4 +37,9 @@ Arc currently features these checks
   * KillAura - this check checks for many things, including(but not limited to): MultiAura, Direction, AttackSpeed, Reach, NoSwing
 
 Arc has many more checks coming in the future, this is NOT a complete list.
+
+# Screenshots
+![alerts](https://i.imgur.com/Hab1UZ5.png)
+
+![help](https://i.imgur.com/r6G6CB7.png)
   
