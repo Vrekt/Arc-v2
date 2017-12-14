@@ -11,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -39,15 +38,15 @@ public class CommandSummary extends Command {
         }
 
         // create inventory and an empty pane.
-        Inventory inventory = Bukkit.createInventory(null, 45, "Summary for " + user.getName());
-        ItemStack itemPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 10);
+        Inventory inventory = Bukkit.createInventory(null, 27, "Summary for " + user.getName());
+        ItemStack itemPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14);
 
         ItemMeta metaPane = itemPane.getItemMeta();
         metaPane.setDisplayName(ChatColor.RED + "");
         itemPane.setItemMeta(metaPane);
 
         ItemStack itemPaper = new ItemStack(Material.PAPER);
-        int index = 10;
+        int index = 0;
 
         for (Check check : Arc.getCheckManager().getChecks()) {
             CheckType type = check.getCheck();
@@ -66,7 +65,6 @@ public class CommandSummary extends Command {
 
             // add the item
             inventory.setItem(index++, itemPaper);
-            index += 2;
         }
 
         for (int i = 0; i < inventory.getSize(); i++) {
@@ -75,14 +73,14 @@ public class CommandSummary extends Command {
             }
         }
 
-        ItemStack itemRecord = new ItemStack(Material.GREEN_RECORD);
+        ItemStack itemApple = new ItemStack(Material.APPLE);
         ItemStack itemSword = new ItemStack(Material.IRON_SWORD);
         ItemStack itemBook = new ItemStack(Material.BOOK);
 
         String OP = user.isOp() ? ChatColor.RED + "true" : ChatColor.GREEN + "false";
 
-        ItemMeta metaRecord = itemRecord.getItemMeta();
-        metaRecord.setDisplayName(ChatColor.GOLD + "Player information: ");
+        ItemMeta metaBook = itemBook.getItemMeta();
+        metaBook.setDisplayName(ChatColor.GOLD + "Player information: ");
 
         ItemMeta metaSword = itemSword.getItemMeta();
         metaSword.setDisplayName(ChatColor.RED + "Ban this player.");
@@ -93,8 +91,8 @@ public class CommandSummary extends Command {
                 totalLevel >= 50 ?
                         CheatProbability.DEFINITELY : CheatProbability.NOT_LIKELY;
 
-        ItemMeta metaBook = itemBook.getItemMeta();
-        metaBook.setDisplayName(ChatColor.RED + "Likelihood of this player cheating: " + ChatColor.AQUA + probability.toString());
+        ItemMeta metaApple = itemApple.getItemMeta();
+        metaApple.setDisplayName(ChatColor.RED + "Probability this player is cheating: " + ChatColor.AQUA + probability.getName());
 
         // add their info to a list and set the lore.
         List<String> info = new ArrayList<>();
@@ -103,19 +101,15 @@ public class CommandSummary extends Command {
         info.add(ChatColor.GOLD + "World: " + ChatColor.BLUE + user.getWorld().getName());
 
         // set item flags and lore.
-        metaRecord.setLore(info);
-        if (!Arc.COMPATIBILITY) {
-            // not supported in 1.7.10
-            metaRecord.addItemFlags(ItemFlag.values());
-        }
-        itemRecord.setItemMeta(metaRecord);
-
-        itemSword.setItemMeta(metaSword);
+        metaBook.setLore(info);
         itemBook.setItemMeta(metaBook);
 
-        inventory.setItem(37, itemRecord);
-        inventory.setItem(40, itemSword);
-        inventory.setItem(43, itemBook);
+        itemSword.setItemMeta(metaSword);
+        itemApple.setItemMeta(metaApple);
+
+        inventory.setItem(21, itemApple);
+        inventory.setItem(22, itemSword);
+        inventory.setItem(23, itemBook);
 
         player.openInventory(inventory);
     }
