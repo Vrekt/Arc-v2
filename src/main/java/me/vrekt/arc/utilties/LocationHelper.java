@@ -97,6 +97,41 @@ public class LocationHelper {
     }
 
     /**
+     * Check if a block is under the player.
+     *
+     * @param location   the location
+     * @param comparable the class to check against.
+     * @return true if the block is under the player.
+     */
+    public static boolean hasBlock(Location location, Class comparable, double vertical) {
+        boolean hasBlock = false;
+
+        // check if were already under that block.
+        Location subtractedGround = location.clone().subtract(0, vertical, 0);
+        Block groundBlock = subtractedGround.getBlock();
+        if (groundBlock.getType().getData().equals(comparable)) {
+            return true;
+        }
+
+        double bit = MODIFIER;
+        double xbit = bit;
+        double zbit = bit;
+
+        for (int expansion = 0; expansion < 5; expansion++) {
+            Location newGround = location.clone().add(xbit, -vertical, zbit);
+            Block block = newGround.getBlock();
+            if (block.getType().getData().equals(comparable)) {
+                hasBlock = true;
+                break;
+            }
+            xbit = expansion >= 2 ? -bit : bit;
+            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+        }
+
+        return hasBlock;
+    }
+
+    /**
      * @param location the location
      * @return if we are under a block.
      */
@@ -198,6 +233,20 @@ public class LocationHelper {
      */
     public static boolean isOnStair(Location location) {
         return hasBlock(location, Stairs.class);
+    }
+
+    /**
+     * @return if we are on a stair but its lower than 0.3
+     */
+    public static boolean isOnStairJump(Location location) {
+        return hasBlock(location, Stairs.class, 1);
+    }
+
+    /**
+     * @returnif we are on a step but its lower than 0.3
+     */
+    public static boolean isOnSlabJump(Location location) {
+        return hasBlock(location, Step.class, 1);
     }
 
     /**

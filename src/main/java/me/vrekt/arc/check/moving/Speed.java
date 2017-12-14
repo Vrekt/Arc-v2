@@ -21,7 +21,9 @@ public class Speed extends Check {
         Location from = data.getPreviousLocation();
         Location to = data.getCurrentLocation();
 
-        boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
+        boolean velocityModifier = (LocationHelper.isOnSlab(to) || LocationHelper.isOnSlabJump(to)) || (LocationHelper.isOnStair(to) ||
+                LocationHelper
+                        .isOnStairJump(to));
 
         boolean onGround = data.isOnGround();
         int groundTicks = data.getGroundTime();

@@ -157,39 +157,46 @@ public class Flight extends Check {
         }
 
         // make sure the player isn't clipping through blocks
-        // TODO: Fix bypass
         Location safe = data.getSafe();
 
         if (safe == null) {
             data.setSafe(from);
             safe = from;
         }
+
+        boolean safeLocation = true;
         if (vertical > 0.99) {
+            // get our locations for checking.
+            int fromY = safe.getBlockY() - 1;
+            int toY = safe.getBlockY() + 1;
+
             int minY = Math.min(safe.getBlockY(), to.getBlockY());
             int maxY = Math.max(safe.getBlockY(), to.getBlockY());
 
-            // ray trace blocks and check if there are any solid blocks between where we moved.
-            boolean safeLocation = true;
-            for (int y = minY; y < maxY; y++) {
-                // get the block.
-                Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
-                if (current.getType().isSolid()) {
-                    safeLocation = false;
-                    // its solid, cancel.
-                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
-                    boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                    result.set(failed, safe);
+            for (int yy = fromY; yy <= toY; yy++) {
+                for (int y = minY; y <= maxY; y++) {
+                    // loop through all the possible y coordinates and get the block at that location.
+                    Block blockFrom = to.getWorld().getBlockAt(to.getBlockX(), yy, to.getBlockZ());
+                    Block blockTo = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
+                    if (blockFrom.getType().isSolid() || blockTo.getType().isSolid()) {
+                        // if its solid flag and dont set a safe location
+                        safeLocation = false;
+                        getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
+                        boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
+                        result.set(failed, safe);
+                    }
+
                 }
             }
+        }
 
-            if (safeLocation) {
-                data.setSafe(from);
-            }
 
-            // cancel right away and ignore other checks.
-            if (result.failed()) {
-                return result;
-            }
+        if (safeLocation) {
+            data.setSafe(from);
+        }
+
+        if (result.failed()) {
+            return result;
         }
 
         // actually ascending and velocity cause.
