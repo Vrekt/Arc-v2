@@ -24,8 +24,10 @@ public class CommandBase implements org.bukkit.command.CommandExecutor {
         Player player = (Player) commandSender;
         if (strings.length >= 1) {
             String command = strings[0];
+            // find and execute the command
             boolean isCommand = Arc.getCommandExecutor().executeCommand(player, command, strings);
             if (!isCommand) {
+                // not a command, show the help.
                 getHelp(player);
                 return true;
             }

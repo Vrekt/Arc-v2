@@ -8,28 +8,6 @@ import java.util.Map;
 
 public class MovingData {
     private static final Map<Player, MovingData> DATA_MAP = new HashMap<>();
-    private Location setback;
-    private Location current;
-    private Location previous;
-    private Location ground;
-    private boolean onGround;
-    private boolean wasOnGround;
-    private boolean flyingClientOnGround;
-    private boolean positionClientOnGround;
-    private boolean isAscending;
-    private boolean isDescending;
-    private boolean isClimbing;
-    private long lastPacketUpdate;
-    private boolean cancelMovingPackets;
-    private double verticalSpeed;
-    private double lastVerticalSpeed;
-    private int airTicks;
-    private int ascendingMoves, descendingMoves;
-    private int movingPackets;
-    private int groundTime;
-    private int iceTime;
-    private int slimeblockTime;
-    private VelocityData velocityData = new VelocityData();
 
     /**
      * Retrieve the players data.
@@ -52,6 +30,34 @@ public class MovingData {
             DATA_MAP.remove(player);
         }
     }
+
+    private Location setback;
+    private Location current;
+    private Location previous;
+    private Location ground;
+    private Location safe;
+
+    private boolean onGround;
+    private boolean wasOnGround;
+    private boolean flyingClientOnGround;
+    private boolean positionClientOnGround;
+    private boolean isAscending;
+    private boolean isDescending;
+    private boolean isClimbing;
+
+    private long lastPacketUpdate;
+    private boolean cancelMovingPackets;
+    private double verticalSpeed;
+    private double lastVerticalSpeed;
+
+    private int airTicks;
+    private int ascendingMoves, descendingMoves;
+    private int movingPackets;
+    private int groundTime;
+    private int iceTime;
+    private int slimeblockTime;
+
+    private VelocityData velocityData = new VelocityData();
 
     public Location getSetback() {
         return setback;
@@ -83,6 +89,14 @@ public class MovingData {
 
     public void setGroundLocation(Location ground) {
         this.ground = ground;
+    }
+
+    public Location getSafe() {
+        return safe;
+    }
+
+    public void setSafe(Location safe) {
+        this.safe = safe;
     }
 
     public boolean isOnGround() {

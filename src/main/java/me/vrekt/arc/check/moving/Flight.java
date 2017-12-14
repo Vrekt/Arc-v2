@@ -156,6 +156,42 @@ public class Flight extends Check {
             data.getVelocityData().setHasVelocity(false);
         }
 
+        // make sure the player isn't clipping through blocks
+        // TODO: Fix bypass
+        Location safe = data.getSafe();
+
+        if (safe == null) {
+            data.setSafe(from);
+            safe = from;
+        }
+        if (vertical > 0.99) {
+            int minY = Math.min(safe.getBlockY(), to.getBlockY());
+            int maxY = Math.max(safe.getBlockY(), to.getBlockY());
+
+            // ray trace blocks and check if there are any solid blocks between where we moved.
+            boolean safeLocation = true;
+            for (int y = minY; y < maxY; y++) {
+                // get the block.
+                Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
+                if (current.getType().isSolid()) {
+                    safeLocation = false;
+                    // its solid, cancel.
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
+                    boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
+                    result.set(failed, safe);
+                }
+            }
+
+            if (safeLocation) {
+                data.setSafe(from);
+            }
+
+            // cancel right away and ignore other checks.
+            if (result.failed()) {
+                return result;
+            }
+        }
+
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK) && !isClimbing && !inLiquid;
@@ -243,25 +279,6 @@ public class Flight extends Check {
             }
         }
 
-
-        // make sure the player isn't clipping through blocks
-        if (vertical > 0.99) {
-            int minY = Math.min(from.getBlockY(), to.getBlockY());
-            int maxY = Math.max(from.getBlockY(), to.getBlockY());
-
-            // ray trace blocks and check if there are any solid blocks between where we moved.
-            for (int y = minY; y < maxY; y++) {
-                // get the block.
-                Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
-                if (current.getType().isSolid()) {
-                    // its solid, cancel.
-                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
-                    boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                    result.set(failed, from);
-
-                }
-            }
-        }
 
         getCheck().setCheckName("Flight");
         return result;
