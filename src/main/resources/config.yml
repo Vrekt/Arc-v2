@@ -19,7 +19,7 @@ flight:
   cancel-vl: 0
 
   # What VL should we ban at? Set this to -1 to disable banning.
-  ban: 10
+  ban: -1
 
   # What VL should we notify at? '1' indicates everytime,
   # '2' Will indicate we should only alert if the VL is divisible by 2.

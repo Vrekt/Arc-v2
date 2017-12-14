@@ -27,6 +27,17 @@ public class ViolationData {
     }
 
     /**
+     * Remove violation level for a certain check.
+     *
+     * @param check the check.
+     */
+    public void removeViolationsForCheck(CheckType check) {
+        if (CHECK_VIOLATIONS.containsKey(check)) {
+            CHECK_VIOLATIONS.remove(check);
+        }
+    }
+
+    /**
      * Clear violation data.
      */
     public void clearData() {

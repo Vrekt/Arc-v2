@@ -57,7 +57,7 @@ public class Speed extends Check {
             double expected = thisMove / data.getGroundTime() + baseMove;
 
             if (hasBlock) {
-                // TODO: Instead of magic values try to calculate an expected.
+                // TODO: Instead of magic values try to calculate an expected?
                 // we have a block, check if we are jumping.
                 if (vertical > 0.0) {
                     // check if we are on ice.

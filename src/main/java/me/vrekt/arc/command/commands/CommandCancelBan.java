@@ -15,6 +15,11 @@ public class CommandCancelBan extends Command {
     @Override
     public void execute(Player player, String[] args) {
 
+        if (args.length < 1) {
+            player.sendMessage(ChatColor.RED + "Incorrect usage: " + usage());
+            return;
+        }
+
         Player ban = Bukkit.getPlayer(args[1]);
         if (ban == null) {
             player.sendMessage(ChatColor.RED + "Player not found.");
@@ -33,6 +38,6 @@ public class CommandCancelBan extends Command {
 
     @Override
     public String usage() {
-        return null;
+        return "/arc cancelban <name>";
     }
 }

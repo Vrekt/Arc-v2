@@ -13,6 +13,7 @@ import me.vrekt.arc.utilties.FightHelper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -22,7 +23,7 @@ public class FightListener implements Listener, ACheckListener {
     private final Criticals CRITICALS = (Criticals) Arc.getCheckManager().getCheck(CheckType.CRITICALS);
     private final KillAura KILL_AURA = (KillAura) Arc.getCheckManager().getCheck(CheckType.KILLAURA);
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRegen(EntityRegainHealthEvent event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof Player)) {
@@ -42,7 +43,7 @@ public class FightListener implements Listener, ACheckListener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onFight(EntityDamageByEntityEvent event) {
 
         Entity attacked = event.getEntity();

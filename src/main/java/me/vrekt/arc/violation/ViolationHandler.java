@@ -83,12 +83,18 @@ public class ViolationHandler {
         }
 
         if (violationLevel >= ban && bannable) {
+            data.removeViolationsForCheck(check);
             Arc.getArcPlayerManager().scheduleBan(player);
         }
 
         return violationLevel >= cancel && cancellable;
     }
 
+    /**
+     * Add or remove a player listener.
+     *
+     * @param player the player
+     */
     public void addOrRemoveListener(Player player) {
         if (DEBUG_LISTENERS.contains(player)) {
             removeListener(player);
@@ -99,16 +105,31 @@ public class ViolationHandler {
 
     }
 
+    /**
+     * Add a listener.
+     *
+     * @param player the player
+     */
     private void addListener(Player player) {
         DEBUG_LISTENERS.add(player);
         player.sendMessage(ChatColor.GREEN + "You will now receive debug info.");
     }
 
+    /**
+     * Remove a listener.
+     *
+     * @param player the player
+     */
     private void removeListener(Player player) {
         DEBUG_LISTENERS.remove(player);
         player.sendMessage(ChatColor.GREEN + "You will not longer receive debug info.");
     }
 
+    /**
+     * Clear player data.
+     *
+     * @param player the player
+     */
     public void clearPlayerData(Player player) {
         if (DEBUG_LISTENERS.contains(player)) {
             DEBUG_LISTENERS.remove(player);
