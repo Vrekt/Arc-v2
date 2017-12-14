@@ -4,6 +4,7 @@ import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -65,12 +66,14 @@ public class Speed extends Check {
                         // we have ice and we are jumping lets adjust and check.
                         double iceExpected = 0.913;
                         if (thisMove > iceExpected) {
+                            getCheck().setCheckName("Speed " + ChatColor.GRAY + "(Ice)");
                             result.set(checkViolation(player, "Moving too fast, onground_ice_block m=" + thisMove + " e=" + iceExpected));
                         }
                     } else {
                         // no ice and jumping.
                         double jumpingExpected = 0.6699;
                         if (thisMove > jumpingExpected) {
+                            getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop)");
                             result.set(checkViolation(player, "Moving too fast, onground_block m=" + thisMove + " e=" + jumpingExpected));
                         }
                     }
@@ -83,10 +86,12 @@ public class Speed extends Check {
                 // no block, normal check.
                 if (velocityModifier) {
                     if (thisMove > stepModifier) {
+                        getCheck().setCheckName("Speed " + ChatColor.GRAY + "(onGround)");
                         result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
                     }
                 } else {
                     if (thisMove > expected) {
+                        getCheck().setCheckName("Speed " + ChatColor.GRAY + "(onGround)");
                         result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
                     }
                 }
@@ -117,6 +122,7 @@ public class Speed extends Check {
                 double stage = vertical == 0.0 ? 0.1018 : vertical < 0.34 ? 0.1504 : 0.28;
                 double expected = (baseMove + stage);
                 if (thisMove > expected) {
+                    getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop Slimeblock)");
                     result.set(checkViolation(player, "Moving too fast, offground_slime m=" + thisMove + " e=" + expected));
                 }
             }
@@ -126,6 +132,7 @@ public class Speed extends Check {
                 data.setIceTime(8);
                 double iceExpected = 0.58;
                 if (thisMove > iceExpected) {
+                    getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop Ice)");
                     result.set(checkViolation(player, "Moving too fast, offground_ice m=" + thisMove + " e=" + iceExpected));
                 }
 
@@ -139,6 +146,7 @@ public class Speed extends Check {
 
                 // too fast, flag.
                 if (thisMove > expected) {
+                    getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop)");
                     result.set(checkViolation(player, "Moving too fast, offground_expected m=" + thisMove + " e=" + expected));
                 }
             }
@@ -150,6 +158,7 @@ public class Speed extends Check {
             data.setSetback(from);
         }
 
+        getCheck().setCheckName("Speed");
         return result.failed();
     }
 

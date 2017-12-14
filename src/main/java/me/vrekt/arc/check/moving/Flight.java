@@ -7,6 +7,7 @@ import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.data.moving.VelocityData;
 import me.vrekt.arc.utilties.LocationHelper;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,6 +45,7 @@ public class Flight extends Check {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= 10) {
                 // too long, flag.
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Hover)");
                 result.set(checkViolation(player, "hovering off the ground, hover"));
             }
         }
@@ -75,11 +77,13 @@ public class Flight extends Check {
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
                 result.set(checkViolation(player, "ascending too fast, ladder_ascend"), data.getPreviousLocation());
             }
 
             // patch for instant ladder
             if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
                 result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
             }
 
@@ -89,10 +93,12 @@ public class Flight extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
                 result.set(checkViolation(player, "descending too fast, ladder_descend"), data.getPreviousLocation());
             }
         }
 
+        getCheck().setCheckName("Flight");
         return result;
     }
 
@@ -150,6 +156,7 @@ public class Flight extends Check {
             data.getVelocityData().setHasVelocity(false);
         }
 
+        player.sendMessage("V: " + vertical + " L: " + inLiquid + " A: " + isAscending + " D: " + isDescending + " OG: " + onGround);
 
         // actually ascending and velocity cause.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
@@ -170,9 +177,19 @@ public class Flight extends Check {
             double last = data.getVelocityData().getLastVelocity();
             if (velocity > last && ascendingMoves > maxAscendTime) {
                 // were ascending too high, flag.
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
                 result.set(checkViolation(player, "ascending too high, ascending_slimeblock"));
             }
 
+        }
+
+        // check for jesus.
+        if ((isAscending || isDescending) && inLiquid && !onGround) {
+            boolean ccGround = data.isPositionClientOnGround();
+            if (ccGround && vertical != 0.0) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Jesus)");
+                result.set(checkViolation(player, "walking on water, ccground_liquid"));
+            }
         }
 
         // Make sure we're not jumping too high or for too long.
@@ -181,17 +198,20 @@ public class Flight extends Check {
             double distance = LocationHelper.distanceVertical(ground, to);
             // distance is pretty high, that's not right.
             if (distance >= 1.4) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
                 result.set(checkViolation(player, "ascending too high, ascending_distance"));
             }
 
             // check ascend time.
             if (ascendingMoves > maxAscendTime) {
                 // too long, flag.
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
                 result.set(checkViolation(player, "ascending for too long, ascending_move"));
             }
 
             // jumping too high
             if (vertical > getMaxJump(player)) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
                 result.set(checkViolation(player, "vertical too high, vertical_jump"), from);
             }
 
@@ -208,6 +228,7 @@ public class Flight extends Check {
 
             // were descending at the same speed, that isnt right.
             if (glideDelta == 0.0) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
                 result.set(checkViolation(player, "vertical not changing, descend_delta"));
             }
             // calculate expected falling speed.
@@ -219,6 +240,7 @@ public class Flight extends Check {
             double distFromGround = LocationHelper.distanceVertical(ground, to);
             // TODO: temp fix.
             if (distFromGround > 1.6 && difference > 0.6) {
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
                 result.set(checkViolation(player, "descending move not expected, descend_expected"));
             }
         }
@@ -235,6 +257,7 @@ public class Flight extends Check {
                 Block current = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
                 if (current.getType().isSolid()) {
                     // its solid, cancel.
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
                     boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
                     result.set(failed, from);
 
@@ -242,6 +265,7 @@ public class Flight extends Check {
             }
         }
 
+        getCheck().setCheckName("Flight");
         return result;
     }
 
