@@ -34,6 +34,7 @@ Arc currently features these checks
 * Combat Checks
   * Criticals - this check ensures the player isn't landing critical hits when its not possible.
   * Regeneration - this check ensures the player isn't regenerating their health too fast.
+  * KillAura - this check checks for many things, including(but not limited to): MultiAura, Direction, AttackSpeed, Reach, NoSwing
 
 Arc has many more checks coming in the future, this is NOT a complete list.
   
