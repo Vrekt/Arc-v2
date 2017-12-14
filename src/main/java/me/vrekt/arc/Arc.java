@@ -31,7 +31,7 @@ public class Arc extends JavaPlugin {
      * ARC INFO/COMPAT
      **/
     public static boolean COMPATIBILITY = false;
-    public static String VERSION = "1.0.3-b1";
+    public static String VERSION = "1.0.6";
     private static Plugin thisPlugin;
     private static CheckManager checkManager;
     private static PacketListener packetListener;
