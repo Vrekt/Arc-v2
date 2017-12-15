@@ -12,13 +12,12 @@ sourceCompatibility = 1.8
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'http://repo.dmulloy2.net/nexus/repository/public/' }
 }
 
 dependencies {
     compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib-API:4.3.0'
+    // Temporary workaround until the maven repository issues can be worked out.
+    compileOnly files('libs/ProtocolLib.jar')
 }
 
 processResources {
