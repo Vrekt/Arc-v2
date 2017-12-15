@@ -14,6 +14,7 @@ import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.wrappers.WrapperPlayClientFlying;
 import me.vrekt.arc.wrappers.WrapperPlayClientPosition;
 import me.vrekt.arc.wrappers.WrapperPlayClientPositionLook;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -56,14 +57,26 @@ public class PacketListener implements ACheckListener {
                 if (data.cancelMovingPackets()) {
                     event.setCancelled(true);
                 }
+                Location from = data.getCurrentLocation();
+                Location to;
 
                 // Update ground info.
                 if (event.getPacket().getType().equals(PacketType.Play.Client.POSITION)) {
                     WrapperPlayClientPosition position = new WrapperPlayClientPosition(event.getPacket());
                     data.setPositionClientOnGround(position.getOnGround());
+                    to = new Location(player.getWorld(), position.getX(), position.getY(), position.getZ());
                 } else {
                     WrapperPlayClientPositionLook position = new WrapperPlayClientPositionLook(event.getPacket());
                     data.setPositionClientOnGround(position.getOnGround());
+                    to = new Location(player.getWorld(), position.getX(), position.getY(), position.getZ());
+                }
+
+                if (to != null && from != null) {
+                    double distance = from.distanceSquared(to);
+                    if (distance > 8) {
+                        // prevent large movements.
+                        event.setCancelled(true);
+                    }
                 }
 
                 // Update packet info.
