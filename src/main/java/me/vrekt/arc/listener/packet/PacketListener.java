@@ -14,7 +14,6 @@ import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.wrappers.WrapperPlayClientFlying;
 import me.vrekt.arc.wrappers.WrapperPlayClientPosition;
 import me.vrekt.arc.wrappers.WrapperPlayClientPositionLook;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -24,7 +23,8 @@ public class PacketListener implements ACheckListener {
 
     public void startListening(Plugin plugin, ProtocolManager manager) {
         listening = true;
-        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.FLYING) {
+
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.FLYING) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
@@ -32,6 +32,7 @@ public class PacketListener implements ACheckListener {
 
                 if (data.cancelMovingPackets()) {
                     event.setCancelled(true);
+                    return;
                 }
 
                 // Update ground info.
@@ -39,52 +40,46 @@ public class PacketListener implements ACheckListener {
                 data.setFlyingClientOnGround(flying.getOnGround());
 
                 // Update packet info.
-                data.setMovingPackets(data.getMovingPackets() + 1);
-                if (updateAndCheck(player, data)) {
+                data.setFlyingPackets(data.getFlyingPackets() + 1);
+                boolean cancel = updateAndCheck(player, data);
+                if (cancel) {
                     event.setCancelled(true);
                 }
 
             }
         });
 
-        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.POSITION,
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.POSITION,
                 PacketType.Play.Client.POSITION_LOOK) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
 
-                Location from = data.getCurrentLocation();
-                Location to;
+                if (data.cancelMovingPackets()) {
+                    event.setCancelled(true);
+                    return;
+                }
 
                 // Update ground info.
                 if (event.getPacket().getType().equals(PacketType.Play.Client.POSITION)) {
                     WrapperPlayClientPosition position = new WrapperPlayClientPosition(event.getPacket());
                     data.setPositionClientOnGround(position.getOnGround());
-                    to = new Location(player.getWorld(), position.getX(), position.getY(), position.getZ());
                 } else {
                     WrapperPlayClientPositionLook position = new WrapperPlayClientPositionLook(event.getPacket());
                     data.setPositionClientOnGround(position.getOnGround());
-                    to = new Location(player.getWorld(), position.getX(), position.getY(), position.getZ());
-                }
-
-                if (to != null && from != null) {
-                    double distance = from.distanceSquared(to);
-                    if (distance > 8) {
-                        // prevent large movements.
-                        event.setCancelled(true);
-                    }
                 }
 
                 // Update packet info.
-                data.setMovingPackets(data.getMovingPackets() + 1);
-                if (updateAndCheck(player, data)) {
+                data.setPositionPackets(data.getPositionPackets() + 1);
+                boolean cancel = updateAndCheck(player, data);
+                if (cancel) {
                     event.setCancelled(true);
                 }
             }
         });
 
-        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.USE_ENTITY) {
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.USE_ENTITY) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
@@ -94,7 +89,7 @@ public class PacketListener implements ACheckListener {
             }
         });
 
-        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.ARM_ANIMATION) {
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.ARM_ANIMATION) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
@@ -121,28 +116,27 @@ public class PacketListener implements ACheckListener {
 
         boolean canCheckMorePackets = Arc.getCheckManager().canCheckPlayer(player, CheckType.MOREPACKETS);
 
-        // fix for MorePackets flagging when logging in, even when exempted.
+        // if we cant check reset data and return.
         if (!canCheckMorePackets) {
-            data.setMovingPackets(0);
             data.setLastPacketUpdate(System.currentTimeMillis());
+            data.setPositionPackets(0);
+            data.setFlyingPackets(0);
+
+            data.setCancelMovingPackets(false);
             return false;
         }
 
-        long time = System.currentTimeMillis() - data.getLastPacketUpdate();
-        // check if its been more than a second.
-        if (time >= 1000) {
+        long timeElapsed = System.currentTimeMillis() - data.getLastPacketUpdate();
+        if (timeElapsed >= 1000) {
+            data.setCancelMovingPackets(false);
+            // its been a second lets check.
             boolean check = MORE_PACKETS.check(player, data);
-            data.setMovingPackets(0);
+
+            data.setPositionPackets(0);
+            data.setFlyingPackets(0);
             data.setLastPacketUpdate(System.currentTimeMillis());
-
-            if (check) {
-                return true;
-            } else {
-                data.setCancelMovingPackets(false);
-                return false;
-            }
+            return check;
         }
-
         return false;
     }
 

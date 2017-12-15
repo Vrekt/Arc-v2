@@ -4,6 +4,7 @@ import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class MorePackets extends Check {
@@ -19,17 +20,25 @@ public class MorePackets extends Check {
 
     public boolean check(Player player, MovingData data) {
 
-        int packets = data.getMovingPackets();
-        // check if we have sent more packets than allowed.
-        if (packets > maxPackets) {
+        int flyingPackets = data.getFlyingPackets();
+        int movingPackets = data.getPositionPackets();
+
+        // check if we are sending more packets then allowed.
+        if (flyingPackets > maxPackets || movingPackets > maxPackets) {
             checkViolation(player, "sending too many packets");
-            if (kickThreshold > packets) {
-                player.kickPlayer("You are sending too many packets.");
+            if (flyingPackets > kickThreshold || movingPackets > kickThreshold) {
+                // we are sending over the limit, kick.
+                Bukkit.getScheduler().runTaskLater(Arc.getPlugin(), () -> {
+                    // prevent async player kick.
+                    player.kickPlayer("You are sending too many packets.");
+                }, 5);
                 return false;
             }
             data.setCancelMovingPackets(true);
             return true;
         }
+
+        data.setCancelMovingPackets(false);
         return false;
     }
 

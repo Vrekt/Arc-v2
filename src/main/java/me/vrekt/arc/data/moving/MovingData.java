@@ -52,7 +52,7 @@ public class MovingData {
 
     private int airTicks;
     private int ascendingMoves, descendingMoves;
-    private int movingPackets;
+    private int flyingPackets, positionPackets;
     private int groundTime;
     private int iceTime;
     private int slimeblockTime;
@@ -215,12 +215,20 @@ public class MovingData {
         this.descendingMoves = descendingMoves;
     }
 
-    public int getMovingPackets() {
-        return movingPackets;
+    public int getFlyingPackets() {
+        return flyingPackets;
     }
 
-    public void setMovingPackets(int movingPackets) {
-        this.movingPackets = movingPackets;
+    public void setFlyingPackets(int flyingPackets) {
+        this.flyingPackets = flyingPackets;
+    }
+
+    public int getPositionPackets() {
+        return positionPackets;
+    }
+
+    public void setPositionPackets(int positionPackets) {
+        this.positionPackets = positionPackets;
     }
 
     public int getGroundTime() {
