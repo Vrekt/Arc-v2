@@ -1,5 +1,6 @@
 package me.vrekt.arc.check.moving;
 
+import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
@@ -14,8 +15,17 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Speed extends Check {
 
+    private double iceBlockMax, ice;
+    private double blockMoveMax, stepMax;
+
     public Speed() {
         super(CheckType.SPEED);
+
+        iceBlockMax = Arc.getCheckManager().getValueDouble(CheckType.SPEED, "ice_block");
+        ice = Arc.getCheckManager().getValueDouble(CheckType.SPEED, "ice");
+        blockMoveMax = Arc.getCheckManager().getValueDouble(CheckType.SPEED, "block");
+        stepMax = Arc.getCheckManager().getValueDouble(CheckType.SPEED, "step_modifier");
+
     }
 
     public boolean check(Player player, MovingData data) {
@@ -93,19 +103,17 @@ public class Speed extends Check {
                     // check if we are on ice.
                     if (isOnIce) {
                         // we have ice and we are jumping lets adjust and check.
-                        double iceExpected = 0.913;
-                        if (thisMove > iceExpected) {
+                        if (thisMove > iceBlockMax) {
                             getCheck().setCheckName("Speed " + ChatColor.GRAY + "(Ice)");
-                            result.set(checkViolation(player, "Moving too fast, onground_ice_block m=" + thisMove + " e=" + iceExpected));
+                            result.set(checkViolation(player, "Moving too fast, onground_ice_block m=" + thisMove + " e=" + iceBlockMax));
                         }
                     }
 
                     if (!isOnIce && data.getIceTime() <= 3) {
                         // no ice and jumping.
-                        double jumpingExpected = 0.6699;
-                        if (thisMove > jumpingExpected) {
+                        if (thisMove > blockMoveMax) {
                             getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop)");
-                            result.set(checkViolation(player, "Moving too fast, onground_block m=" + thisMove + " e=" + jumpingExpected));
+                            result.set(checkViolation(player, "Moving too fast, onground_block m=" + thisMove + " e=" + blockMoveMax));
                         }
                     }
                 }
@@ -114,7 +122,7 @@ public class Speed extends Check {
             // make sure we've actually been onGround, without block jumps, etc.
             if (groundTicks >= 5) {
                 boolean hadModifier = from.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
-                double stepModifier = velocityModifier ? 0.489 + expected : 0;
+                double stepModifier = velocityModifier ? stepMax + expected : 0;
                 // no block, normal check.
                 if (velocityModifier || hadModifier) {
                     if (thisMove > stepModifier) {
@@ -146,10 +154,9 @@ public class Speed extends Check {
 
             if (isOnIce) {
                 // check if we have been 'launched' by ice.
-                double iceExpected = 0.58;
-                if (thisMove > iceExpected) {
+                if (thisMove > ice) {
                     getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop Ice)");
-                    result.set(checkViolation(player, "Moving too fast, offground_ice m=" + thisMove + " e=" + iceExpected));
+                    result.set(checkViolation(player, "Moving too fast, offground_ice m=" + thisMove + " e=" + ice));
                 }
 
             }

@@ -1,37 +1,40 @@
-# How long before a player is banned, seconds.
+# When Arc schedules a ban, how many seconds should Arc wait before banning the player?
 ban-time: 10
 
-# How should we ban the player? 'IP' or 'NAME'?
+# How should the player be banned? This only accepts 'NAME' or 'IP'
 ban-type: NAME
 
-# How many days to ban for? 'null' for a permanent ban.
+# How many days should we ban the player for? 'null' indicates a permanent ban.
 ban-days: 30
 
-# At what TPS should we start disabling checks?
+# At what TPS should Arc start disabling checks to help the TPS improve?
 tps-limit: 17
 
-# Flight properties.
+# Flight settings and configuration.
+# Flight checks if the player is flying when they're not allowed to, for example in survival.
 flight:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
   # What is the max height we can jump?
   max-jump: 0.42
 
-  # Whats the max amount of time we can hover for?
+  # Whats the max amount of time the player can hover for?
   max-hover-time: 1
 
   # How fast can we climb a ladder?
@@ -40,148 +43,173 @@ flight:
   # How fast can we descend on a ladder?
   descend-ladder: 0.1500000000000036
 
-  # Max time we can ascend.
+  # The max time a player can ascend for.
   ascend-time: 7
 
 morepackets:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2.
-  notify: 8
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
+  notify: 1
 
-  # Max amount of packets allowed per second. (Modify this if you have laggy players.)
+  # The max amount of packets allowed per second. Modify this if you have laggy players.
   max-packets: 30
 
-  # Kick the player if the packets per second exceeds this limit.
-  max-packets-kick: 50
+  # Kick the player if the amount of packets they send exceeds this amount.
+  max-packets-kick: 70
 
 nofall:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
 regeneration:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
-  # The time it takes to regenerate half a heart. (in milliseconds)
+  # The time it takes to regenerate half a heart, in milliseconds.
   regen-time: 3400
 
 speed:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
+
+  # How fast can we move if we are on ice and jumping with a block above us?
+  ice_block: 0.913
+
+  # How fast can we move if we are under a block and jumping?
+  block: 0.6699
+
+  # The modifier to add when walking on stairs/slabs.
+  step_modifier: 0.489
+
+  # How fast can we move if we are jumping on ice?
+  ice: 0.58
 
 fastconsume:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
-
 criticals:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
 killaura:
+
   # Is the check enabled?
   enabled: true
 
-  # Should we cancel the check?
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
   cancel: true
 
-  # Cancel VL, if you want the check to cancel everytime set this to 0.
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
   cancel-vl: 0
 
-  # What VL should we ban at? Set this to -1 to disable banning.
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
   ban: -1
 
-  # What VL should we notify at? '1' indicates everytime,
-  # '2' Will indicate we should only alert if the VL is divisible by 2. Same for all other numbers.
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
   notify: 1
 
-  # Max angle distance allowed to the other entity.
+  # The max angle distance allowed when you attack two different entities.
   max-direction-angle: 1.2
 
-  # Max time allowed before we receive a swing packet, in millis. default: 80
+  # Max time allowed before we receive a swing packet, in milliseconds.
   max-swing-time: 80
 
-  # Max reach distance allowed
+  # Max distance a player can reach.
   max-reach: 4.2
 
-  # Max attacks allowed every second
+  # Max amount of attacks allowed every second.
   max-attacks: 16
 
 
