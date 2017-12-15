@@ -180,9 +180,13 @@ public class LocationHelper {
      * @return the horizontal distance.
      */
     public static double distanceHorizontal(Location from, Location to) {
+        //  Timings t = new Timings();
+        //  t.start();
         double dx = to.getX() - from.getX();
         double dz = to.getZ() - from.getZ();
-        return Math.sqrt(Math.pow(dx, 2.0) + Math.pow(dz, 2.0));
+        double f = Math.sqrt(Math.pow(dx, 2.0) + Math.pow(dz, 2.0));
+        //    t.stop();
+        return f;
     }
 
     /**
@@ -205,10 +209,14 @@ public class LocationHelper {
      * @return the distance.
      */
     public static double distance(Location from, Location to) {
+        Timings t = new Timings();
+        t.start();
         double dx = to.getX() - from.getX();
         double dy = to.getY() - from.getY();
         double dz = to.getZ() - from.getZ();
-        return Math.sqrt(Math.pow(dx, 2.0) + Math.pow(dy, 2.0) + Math.pow(dz, 2.0));
+        double f = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        t.stop();
+        return f;
     }
 
     /**

@@ -54,7 +54,7 @@ public class MovingListener implements Listener, ACheckListener {
         boolean hasMovedByBlock = from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY()
                 || from.getBlockZ() != to.getBlockZ();
 
-        boolean canCheckFlight = CHECK_MANAGER.canCheckPlayer(player, CheckType.FLIGHT);
+        boolean canCheckFlight = CHECK_MANAGER.canCheckPlayer(player, CheckType.FLIGHT) && player.getNoDamageTicks() > 6;
 
         if (hasMoved) {
             result.reset();
@@ -142,7 +142,7 @@ public class MovingListener implements Listener, ACheckListener {
                 NO_FALL.check(player, data);
             }
 
-            boolean canCheckSpeed = CHECK_MANAGER.canCheckPlayer(player, CheckType.SPEED);
+            boolean canCheckSpeed = CHECK_MANAGER.canCheckPlayer(player, CheckType.SPEED) && player.getNoDamageTicks() > 6;
             if (canCheckSpeed) {
                 boolean failed;
                 if (compatibility) {

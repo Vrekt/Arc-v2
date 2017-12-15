@@ -54,9 +54,6 @@ public class PacketListener implements ACheckListener {
                 Player player = event.getPlayer();
                 MovingData data = MovingData.getData(player);
 
-                if (data.cancelMovingPackets()) {
-                    event.setCancelled(true);
-                }
                 Location from = data.getCurrentLocation();
                 Location to;
 

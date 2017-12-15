@@ -123,7 +123,6 @@ public class Flight extends Check {
         boolean hasSlimeblock = LocationHelper.isOnSlimeblock(to);
 
         boolean hasVelocity = data.getVelocityData().hasVelocity();
-        VelocityData.VelocityCause velocityCause = data.getVelocityData().getVelocityCause();
         double velocity = data.getVelocityData().getCurrentVelocity();
 
         int ascendingMoves = data.getAscendingMoves();
@@ -136,11 +135,6 @@ public class Flight extends Check {
                 // update velocity stuff.
                 data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.SLIMEBLOCK);
                 data.getVelocityData().setHasVelocity(true);
-            }
-
-            if (hasVelocity && velocityCause.equals(VelocityData.VelocityCause.TELEPORT)) {
-                data.getVelocityData().setHasVelocity(false);
-                return result;
             }
 
         }
