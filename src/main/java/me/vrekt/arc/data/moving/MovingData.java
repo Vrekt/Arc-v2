@@ -37,25 +37,16 @@ public class MovingData {
     private Location ground;
     private Location safe;
 
-    private boolean onGround;
-    private boolean wasOnGround;
-    private boolean flyingClientOnGround;
-    private boolean positionClientOnGround;
-    private boolean isAscending;
-    private boolean isDescending;
-    private boolean isClimbing;
+    private boolean onGround, wasOnGround, flyingClientOnGround, positionClientOnGround;
+    private boolean isAscending, isDescending, isClimbing;
+    private boolean cancelMovingPackets;
 
     private long lastPacketUpdate;
-    private boolean cancelMovingPackets;
-    private double verticalSpeed;
-    private double lastVerticalSpeed;
+    private double verticalSpeed, lastVerticalSpeed;
 
-    private int airTicks;
-    private int ascendingMoves, descendingMoves;
+    private int airTicks, ascendingMoves, descendingMoves, groundTime;
     private int flyingPackets, positionPackets;
-    private int groundTime;
-    private int iceTime;
-    private int slimeblockTime;
+    private int iceTime, slimeblockTime, ladderTime;
 
     private VelocityData velocityData = new VelocityData();
 
@@ -253,5 +244,13 @@ public class MovingData {
 
     public void setSlimeblockTime(int slimeblockTime) {
         this.slimeblockTime = slimeblockTime;
+    }
+
+    public int getLadderTime() {
+        return ladderTime;
+    }
+
+    public void setLadderTime(int ladderTime) {
+        this.ladderTime = ladderTime;
     }
 }

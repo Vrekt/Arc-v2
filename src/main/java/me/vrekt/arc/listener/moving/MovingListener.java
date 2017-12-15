@@ -12,7 +12,6 @@ import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -84,9 +83,7 @@ public class MovingListener implements Listener, ACheckListener {
             data.setDescending(descending);
 
             // check if we are climbing or not.
-            boolean isClimbing = (from.getBlock().getType() == Material.LADDER || from.getBlock().getType() == Material.VINE
-                    || to.getBlock().getType() == Material.LADDER || to.getBlock().getType() == Material.VINE);
-            data.setClimbing(isClimbing);
+            data.setClimbing(LocationHelper.isClimbing(to));
 
             double velocity = player.getVelocity().length();
             data.getVelocityData().setLastVelocity(data.getVelocityData().getCurrentVelocity());

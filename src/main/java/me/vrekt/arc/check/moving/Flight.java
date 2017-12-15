@@ -9,9 +9,7 @@ import me.vrekt.arc.data.moving.VelocityData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -112,7 +110,6 @@ public class Flight extends Check {
         boolean isAscending = data.isAscending();
         boolean isDescending = data.isDescending();
         boolean isClimbing = data.isClimbing();
-        boolean hasLadder = to.getBlock().getRelative(BlockFace.DOWN).getType() == Material.LADDER;
 
         boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
 
@@ -139,15 +136,30 @@ public class Flight extends Check {
 
         }
 
+
         if (isAscending) {
             data.setDescendingMoves(0);
-            ascendingMoves += 1;
-            data.setAscendingMoves(ascendingMoves);
+            if (!isClimbing) {
+                ascendingMoves += 1;
+                data.setAscendingMoves(ascendingMoves);
+            }
         }
 
         if (isDescending) {
             data.setAscendingMoves(0);
             data.getVelocityData().setHasVelocity(false);
+        }
+
+        // update ladder stuff.
+        if (isClimbing) {
+            if (isDescending || isAscending) {
+                data.setLadderTime(8);
+            } else {
+                data.setLadderTime(4);
+            }
+        } else {
+            int ladderTime = data.getLadderTime();
+            data.setLadderTime(ladderTime > 0 ? ladderTime - 1 : 0);
         }
 
         // make sure the player isn't clipping through blocks
@@ -253,8 +265,7 @@ public class Flight extends Check {
         }
 
         // make sure were actually falling.
-        if (hasActualVelocity && isDescending && !hasLadder) {
-
+        if (hasActualVelocity && isDescending) {
             int descendMoves = data.getDescendingMoves() + 1;
             data.setDescendingMoves(descendMoves);
 
@@ -270,7 +281,7 @@ public class Flight extends Check {
             double distance = LocationHelper.distanceVertical(ground, to);
 
             // TODO: improve later, could probably be bypassed.
-            if (distance > 1.6) {
+            if (distance > 1.6 && data.getLadderTime() == 0) {
                 if (glideDifference > 0.07 || glideDifference < 0.05) {
                     getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
                     result.set(checkViolation(player, "vertical not changing, descend_difference"));

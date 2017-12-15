@@ -25,7 +25,7 @@ public class NoFall extends Check {
         boolean isDescending = toGround >= 3.0 && data.isDescending() && !data.isOnGround();
 
         // make sure we meet the req.
-        if (isDescending) {
+        if (isDescending && !data.isClimbing()) {
             boolean ccOnGround = data.isFlyingClientOnGround();
             // we're not on ground but the client is?
             if (ccOnGround && player.getFallDistance() == 0.0) {

@@ -7,6 +7,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class LocationHelper {
     private static final double MODIFIER = 0.3;
 
@@ -101,6 +104,7 @@ public class LocationHelper {
      *
      * @param location   the location
      * @param comparable the class to check against.
+     * @param vertical   the y amount to subtract/add by.
      * @return true if the block is under the player.
      */
     public static boolean hasBlock(Location location, Class comparable, double vertical) {
@@ -121,6 +125,42 @@ public class LocationHelper {
             Location newGround = location.clone().add(xbit, -vertical, zbit);
             Block block = newGround.getBlock();
             if (block.getType().getData().equals(comparable)) {
+                hasBlock = true;
+                break;
+            }
+            xbit = expansion >= 2 ? -bit : bit;
+            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+        }
+
+        return hasBlock;
+    }
+
+    /**
+     * Check if a block is under the player.
+     *
+     * @param location  the location
+     * @param materials the materials to check for.
+     * @return true if the block is under the player.
+     */
+    public static boolean hasBlock(Location location, Material[] materials) {
+        boolean hasBlock = false;
+        List<Material> listMaterial = Arrays.asList(materials);
+
+        // check if were already under that block.
+        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
+        Block groundBlock = subtractedGround.getBlock();
+        if (listMaterial.contains(groundBlock.getType())) {
+            return true;
+        }
+
+        double bit = MODIFIER;
+        double xbit = bit;
+        double zbit = bit;
+
+        for (int expansion = 0; expansion < 5; expansion++) {
+            Location newGround = location.clone().add(xbit, -MODIFIER, zbit);
+            Block block = newGround.getBlock();
+            if (listMaterial.contains(block.getType())) {
                 hasBlock = true;
                 break;
             }
@@ -169,6 +209,13 @@ public class LocationHelper {
         }
 
         return hasBlock;
+    }
+
+    /**
+     * @return if we are climbing on ladder/vine.
+     */
+    public static boolean isClimbing(Location location) {
+        return hasBlock(location, new Material[]{Material.LADDER, Material.VINE});
     }
 
 
