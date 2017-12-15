@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class CheckManager {
 
+    private final Map<CheckType, CheckData> CHECK_CACHE = new HashMap<>();
     private final Map<CheckType, CheckData> CHECK_DATA = new HashMap<>();
     private final List<Check> CHECKS = new ArrayList<>();
 
@@ -89,6 +90,47 @@ public class CheckManager {
      */
     public boolean isCheckEnabled(CheckType check) {
         return CHECK_DATA.containsKey(check);
+    }
+
+    /**
+     * Disable a check.
+     *
+     * @param check the check.
+     */
+    public void disableCheck(CheckType check) {
+        CHECK_CACHE.put(check, CHECK_DATA.get(check));
+        CHECK_DATA.remove(check);
+    }
+
+    /**
+     * Disable checks.
+     *
+     * @param checks the checks
+     */
+    public void disableChecks(CheckType... checks) {
+        for (CheckType check : checks) {
+            disableCheck(check);
+        }
+    }
+
+    /**
+     * Enable a check.
+     *
+     * @param check the check.
+     */
+    public void enableCheck(CheckType check) {
+        CHECK_DATA.put(check, CHECK_CACHE.get(check));
+        CHECK_CACHE.remove(check);
+    }
+
+    /**
+     * Enable all the disabled checks.
+     */
+    public void enableAllDisableChecks() {
+        for (CheckType check : CHECK_CACHE.keySet()) {
+            CheckData data = CHECK_CACHE.get(check);
+            CHECK_DATA.put(check, data);
+        }
     }
 
     /**

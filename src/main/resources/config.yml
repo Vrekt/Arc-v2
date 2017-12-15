@@ -7,6 +7,9 @@ ban-type: NAME
 # How many days to ban for? 'null' for a permanent ban.
 ban-days: 30
 
+# At what TPS should we start disabling checks?
+tps-limit: 17
+
 # Flight properties.
 flight:
   # Is the check enabled?

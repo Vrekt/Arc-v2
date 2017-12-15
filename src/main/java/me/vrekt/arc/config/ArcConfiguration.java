@@ -13,6 +13,8 @@ public class ArcConfiguration {
     private Date banDate;
     private int banTime;
 
+    private int tpsLimit;
+
     /**
      * Get the data from config file.
      *
@@ -33,6 +35,8 @@ public class ArcConfiguration {
             c.add(GregorianCalendar.DATE, Integer.parseInt(days));
             banDate = c.getTime();
         }
+
+        tpsLimit = config.getInt("tps-limit", tpsLimit);
 
     }
 
@@ -57,4 +61,10 @@ public class ArcConfiguration {
         return banTime;
     }
 
+    /**
+     * @return the tps limit.
+     */
+    public int getTpsLimit() {
+        return tpsLimit;
+    }
 }

@@ -7,6 +7,7 @@ import me.vrekt.arc.command.CommandExecutor;
 import me.vrekt.arc.config.ArcConfiguration;
 import me.vrekt.arc.data.moving.task.MovingUpdateTask;
 import me.vrekt.arc.exemption.ExemptionManager;
+import me.vrekt.arc.lag.TPSWatcher;
 import me.vrekt.arc.listener.PlayerListener;
 import me.vrekt.arc.listener.combat.FightListener;
 import me.vrekt.arc.listener.inventory.InventoryListener;
@@ -67,6 +68,9 @@ public class Arc extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new MovingListener(), this);
+
+        getLogger().info("Registering TickWatcher thread...");
+        new TPSWatcher().runTaskTimer(this, 0, 20);
 
         packetListener = new PacketListener();
         packetListener.startListening(this, ProtocolLibrary.getProtocolManager());

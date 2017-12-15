@@ -1,6 +1,7 @@
 package me.vrekt.arc.listener.packet;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -20,6 +21,13 @@ import org.bukkit.plugin.Plugin;
 public class PacketListener implements ACheckListener {
     private final MorePackets MORE_PACKETS = (MorePackets) Arc.getCheckManager().getCheck(CheckType.MOREPACKETS);
     private boolean listening = false;
+
+    /**
+     * Stop listening.
+     */
+    public void stopListening() {
+        ProtocolLibrary.getProtocolManager().removePacketListeners(Arc.getPlugin());
+    }
 
     public void startListening(Plugin plugin, ProtocolManager manager) {
         listening = true;
