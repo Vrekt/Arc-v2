@@ -10,14 +10,15 @@ targetCompatibility = 1.8
 sourceCompatibility = 1.8
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url 'http://repo.dmulloy2.net/nexus/repository/public/' }
 }
 
 dependencies {
-    compileOnly 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:+'
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+    compileOnly 'com.comphenix.protocol:ProtocolLib-API:4.3.0'
 }
 
 processResources {
