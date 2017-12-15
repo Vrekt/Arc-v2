@@ -2,6 +2,7 @@ package me.vrekt.arc.exemption;
 
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
+import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.exemption.data.ExemptionData;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -35,11 +36,17 @@ public class ExemptionManager {
         }
 
         // iterate through the array of checks that need to be exempted for if we are flying.
+        MovingData data = MovingData.getData(player);
         for (CheckType element : EXEMPT_BECAUSE_FLYING) {
             if (!(element.equals(check))) {
                 continue;
             }
-            hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getAllowFlight() || player.isFlying();
+
+            boolean damageExemption;
+            data.getVelocityData().setHasVelocity(false);
+            damageExemption = player.getNoDamageTicks() > 6;
+
+            hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getAllowFlight() || player.isFlying() || damageExemption;
             break;
         }
 

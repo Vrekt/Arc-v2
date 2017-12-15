@@ -51,8 +51,10 @@ public class FightListener implements Listener, ACheckListener {
 
         if (attacked instanceof Player) {
             // update our velocity data since our player got hit.
-            // TODO: ignore if no velocity was taken?
             Player player = (Player) attacked;
+            if (player.getVelocity().length() == 0) {
+                return;
+            }
             MovingData data = MovingData.getData(player);
             data.getVelocityData().setHasVelocity(true);
             data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.KNOCKBACK);
