@@ -15,7 +15,7 @@ public class MorePackets extends Check {
         super(CheckType.MOREPACKETS);
 
         maxPackets = Arc.getCheckManager().getValueInt(CheckType.MOREPACKETS, "max-packets");
-        kickThreshold = Arc.getCheckManager().getValueInt(CheckType.REGENERATION, "max-packets-kick");
+        kickThreshold = Arc.getCheckManager().getValueInt(CheckType.MOREPACKETS, "max-packets-kick");
     }
 
     public boolean check(Player player, MovingData data) {

@@ -7,11 +7,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class LocationHelper {
-    private static final double MODIFIER = 0.3;
 
     /**
      * Check if we are on ground by expanding the location and checking blocks
@@ -22,12 +18,11 @@ public class LocationHelper {
      * @return whether or not were on the ground. true if we are.
      */
     public static boolean isOnGround(Location location, double vertical) {
-        boolean onGround = false;
+        LocationBit bit = new LocationBit(0.5);
 
         // get two different block locations.
+        Location subtractedGround = location.clone().subtract(0, 0.5, 0);
         Block oddBlock = location.getBlock().getRelative(BlockFace.DOWN);
-
-        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
         Block groundBlock = subtractedGround.getBlock();
 
         boolean hasClimbable = groundBlock.getType().equals(Material.LADDER);
@@ -39,29 +34,17 @@ public class LocationHelper {
             return true;
         }
         // expand the location and determine if we are being supported by a block.
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
 
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newGround = location.clone().add(xbit, -MODIFIER, zbit);
+        for (int i = 0; i < 4; i++) {
+            Location newGround = location.clone().add(bit.getX(), -0.5, bit.getZ());
             Block block = newGround.getBlock();
             if (block.getType().isSolid()) {
-                onGround = true;
-                break;
-            }
-            if (expansion == 4) {
-                break;
+                return true;
             }
 
-
-            // never pos and neg
-            // this follows the setup 0:(pos, pos) 1:(pos, neg) 2:(neg, pos) 3:(neg, neg)
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+            bit.shift(i);
         }
-
-        return onGround;
+        return false;
     }
 
     /**
@@ -72,31 +55,25 @@ public class LocationHelper {
      * @return true if the block is under the player.
      */
     public static boolean hasBlock(Location location, Class comparable) {
-        boolean hasBlock = false;
+        LocationBit bit = new LocationBit(0.5);
 
         // check if were already under that block.
-        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
-        Block groundBlock = subtractedGround.getBlock();
-        if (groundBlock.getType().getData().equals(comparable)) {
+        Location subtracted = location.clone().subtract(0, 0.5, 0);
+        Block subtractedBlock = subtracted.getBlock();
+
+        if (subtractedBlock.getType().getData().equals(comparable)) {
             return true;
         }
 
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
-
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newGround = location.clone().add(xbit, -MODIFIER, zbit);
-            Block block = newGround.getBlock();
+        for (int i = 0; i < 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), -0.5, bit.getZ());
+            Block block = newLocation.getBlock();
             if (block.getType().getData().equals(comparable)) {
-                hasBlock = true;
-                break;
+                return true;
             }
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+            bit.shift(i);
         }
-
-        return hasBlock;
+        return false;
     }
 
     /**
@@ -108,67 +85,25 @@ public class LocationHelper {
      * @return true if the block is under the player.
      */
     public static boolean hasBlock(Location location, Class comparable, double vertical) {
-        boolean hasBlock = false;
+        LocationBit bit = new LocationBit(0.5);
 
         // check if were already under that block.
-        Location subtractedGround = location.clone().subtract(0, vertical, 0);
-        Block groundBlock = subtractedGround.getBlock();
-        if (groundBlock.getType().getData().equals(comparable)) {
+        Location subtracted = location.clone().subtract(0, vertical, 0);
+        Block subtractedBlock = subtracted.getBlock();
+
+        if (subtractedBlock.getType().getData().equals(comparable)) {
             return true;
         }
 
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
-
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newGround = location.clone().add(xbit, -vertical, zbit);
-            Block block = newGround.getBlock();
+        for (int i = 0; i < 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), -vertical, bit.getZ());
+            Block block = newLocation.getBlock();
             if (block.getType().getData().equals(comparable)) {
-                hasBlock = true;
-                break;
+                return true;
             }
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+            bit.shift(i);
         }
-
-        return hasBlock;
-    }
-
-    /**
-     * Check if a block is under the player.
-     *
-     * @param location  the location
-     * @param materials the materials to check for.
-     * @return true if the block is under the player.
-     */
-    public static boolean hasBlock(Location location, Material[] materials) {
-        boolean hasBlock = false;
-        List<Material> listMaterial = Arrays.asList(materials);
-
-        // check if were already under that block.
-        Location subtractedGround = location.clone().subtract(0, MODIFIER, 0);
-        Block groundBlock = subtractedGround.getBlock();
-        if (listMaterial.contains(groundBlock.getType())) {
-            return true;
-        }
-
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
-
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newGround = location.clone().add(xbit, -MODIFIER, zbit);
-            Block block = newGround.getBlock();
-            if (listMaterial.contains(block.getType())) {
-                hasBlock = true;
-                break;
-            }
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
-        }
-
-        return hasBlock;
+        return false;
     }
 
     /**
@@ -176,46 +111,46 @@ public class LocationHelper {
      * @return if we are under a block.
      */
     public static boolean isUnderBlock(Location location) {
-        boolean hasBlock = false;
+        LocationBit bit = new LocationBit(0.5);
 
-        // determine if we are already under a block without expanding.
-        Location subtracted = location.clone().add(0, 2, 0);
-        Block block = subtracted.getBlock();
-
-        if (block.getType().isSolid()) {
-            // solid block found, return.
+        // check if were already under that block.
+        Location added = location.clone().add(0, 2, 0);
+        Block addedBlock = added.getBlock();
+        if (addedBlock.getType().isSolid()) {
             return true;
         }
 
-        // expand the location and determine if we are being supported by a block.
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
-
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newLocation = location.clone().add(xbit, 2, zbit);
-            Block newBlock = newLocation.getBlock();
-            if (newBlock.getType().isSolid()) {
-                hasBlock = true;
-                break;
+        for (int i = 0; i < 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), 2, bit.getZ());
+            Block block = newLocation.getBlock();
+            if (block.getType().isSolid()) {
+                return true;
             }
-            if (expansion == 4) {
-                break;
-            }
-            // never pos and neg
-            // this follows the setup 0:(pos, pos) 1:(pos, neg) 2:(neg, pos) 3:(neg, neg)
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+            bit.shift(i);
         }
-
-        return hasBlock;
+        return false;
     }
 
     /**
      * @return if we are climbing on ladder/vine.
      */
     public static boolean isClimbing(Location location) {
-        return hasBlock(location, new Material[]{Material.LADDER, Material.VINE});
+        boolean alreadyHasLadder = location.getBlock().getType() == Material.LADDER;
+        boolean alreadyHasVine = location.getBlock().getType() == Material.VINE;
+        if (alreadyHasLadder || alreadyHasVine) {
+            return true;
+        }
+
+        LocationBit bit = new LocationBit(0.1);
+        for (int i = 0; i < 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), -0.06, bit.getZ());
+            Block block = newLocation.getBlock();
+            if (block.getType() == Material.LADDER || block.getType() == Material.VINE) {
+                return true;
+            }
+            bit.shift(i);
+        }
+        return false;
     }
 
 
@@ -227,13 +162,9 @@ public class LocationHelper {
      * @return the horizontal distance.
      */
     public static double distanceHorizontal(Location from, Location to) {
-        //  Timings t = new Timings();
-        //  t.start();
         double dx = to.getX() - from.getX();
         double dz = to.getZ() - from.getZ();
-        double f = Math.sqrt(Math.pow(dx, 2.0) + Math.pow(dz, 2.0));
-        //    t.stop();
-        return f;
+        return Math.sqrt(dx * dx + dz * dz);
     }
 
     /**
@@ -245,7 +176,7 @@ public class LocationHelper {
      */
     public static double distanceVertical(Location from, Location to) {
         double dy = to.getY() - from.getY();
-        return Math.sqrt(Math.pow(dy, 2.0));
+        return Math.sqrt(dy * dy);
     }
 
     /**
@@ -256,24 +187,18 @@ public class LocationHelper {
      * @return the distance.
      */
     public static double distance(Location from, Location to) {
-        Timings t = new Timings();
-        t.start();
         double dx = to.getX() - from.getX();
         double dy = to.getY() - from.getY();
         double dz = to.getZ() - from.getZ();
-        double f = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        t.stop();
-        return f;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
     /**
      * @return if we are on a slimeblock.
      */
     public static boolean isOnSlimeblock(Location location) {
-
         return location.getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK
                 || location.getBlock().getRelative(0, -2, 0).getType() == Material.SLIME_BLOCK;
-
     }
 
     /**
@@ -295,13 +220,6 @@ public class LocationHelper {
      */
     public static boolean isOnStairJump(Location location) {
         return hasBlock(location, Stairs.class, 1);
-    }
-
-    /**
-     * @returnif we are on a step but its lower than 0.3
-     */
-    public static boolean isOnSlabJump(Location location) {
-        return hasBlock(location, Step.class, 0.5);
     }
 
     /**
@@ -327,30 +245,53 @@ public class LocationHelper {
      * @return if we have walked onto a fence.
      */
     public static boolean walkedOnFence(Location location) {
-        boolean hasBlock = false;
         // check if were already under that block.
-        Location subtractedGround = location.clone().subtract(0, 1, 0);
-        Block groundBlock = subtractedGround.getBlock();
+        Location subtracted = location.clone().subtract(0, 1, 0);
+        Block groundBlock = subtracted.getBlock();
         if (MaterialHelper.isFence(groundBlock.getType()) || MaterialHelper.isFenceGate(groundBlock.getType())) {
             return true;
         }
 
-        double bit = MODIFIER;
-        double xbit = bit;
-        double zbit = bit;
-
-        for (int expansion = 0; expansion < 5; expansion++) {
-            Location newGround = location.clone().add(xbit, -1, zbit);
-            Block block = newGround.getBlock();
+        LocationBit bit = new LocationBit(0.5);
+        for (int i = 0; i < 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), -1, bit.getZ());
+            Block block = newLocation.getBlock();
             if (MaterialHelper.isFence(block.getType()) || MaterialHelper.isFenceGate(block.getType())) {
-                hasBlock = true;
-                break;
+                return true;
             }
-            xbit = expansion >= 2 ? -bit : bit;
-            zbit = expansion == 1 ? -bit : expansion == 2 ? bit : expansion == 3 ? -bit : zbit;
+            bit.shift(i);
+        }
+        return false;
+    }
+
+    public static class LocationBit {
+
+        private double modifier;
+        private double xBit, zBit;
+
+        public LocationBit(double modifier) {
+            this.modifier = modifier;
+            this.xBit = modifier;
+            this.zBit = modifier;
         }
 
-        return hasBlock;
+        /**
+         * Shift the X and Y.
+         *
+         * @param bound the index in an array of 5.
+         */
+        public void shift(int bound) {
+            xBit = bound >= 2 ? -modifier : modifier;
+            zBit = bound == 1 ? -modifier : bound == 2 ? modifier : bound == 3 ? -modifier : zBit;
+        }
+
+        public double getX() {
+            return xBit;
+        }
+
+        public double getZ() {
+            return zBit;
+        }
     }
 
 }

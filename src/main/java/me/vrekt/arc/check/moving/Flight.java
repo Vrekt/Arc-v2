@@ -80,7 +80,7 @@ public class Flight extends Check {
             }
 
             // patch for instant ladder
-            if (airTicks >= 20 && vertical > maxAscendSpeed + 0.12) {
+            if (vertical > maxAscendSpeed + 0.12) {
                 getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
                 result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
             }
@@ -121,10 +121,10 @@ public class Flight extends Check {
 
         boolean hasVelocity = data.getVelocityData().hasVelocity();
         double velocity = data.getVelocityData().getCurrentVelocity();
-
         int ascendingMoves = data.getAscendingMoves();
+
         if (onGround) {
-            // reset data
+            // reset data.
             data.setAscendingMoves(0);
             data.setDescendingMoves(0);
 
@@ -133,9 +133,9 @@ public class Flight extends Check {
                 data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.SLIMEBLOCK);
                 data.getVelocityData().setHasVelocity(true);
             }
+            hasVelocity = data.getVelocityData().hasVelocity();
 
         }
-
 
         if (isAscending) {
             data.setDescendingMoves(0);
@@ -150,7 +150,7 @@ public class Flight extends Check {
             data.getVelocityData().setHasVelocity(false);
         }
 
-        // update ladder stuff.
+        // Update ladder data.
         if (isClimbing) {
             if (isDescending || isAscending) {
                 data.setLadderTime(8);
@@ -162,62 +162,61 @@ public class Flight extends Check {
             data.setLadderTime(ladderTime > 0 ? ladderTime - 1 : 0);
         }
 
-        // make sure the player isn't clipping through blocks
-        Location safe = data.getSafe();
 
-        if (safe == null) {
-            data.setSafe(from);
-            safe = from;
-        }
-
-        boolean safeLocation = true;
-        if (vertical > 0.99) {
-            // get our locations for checking.
-            int fromY = safe.getBlockY() - 1;
-            int toY = safe.getBlockY() + 1;
-
-            int minY = Math.min(safe.getBlockY(), to.getBlockY());
-            int maxY = Math.max(safe.getBlockY(), to.getBlockY());
-
-            for (int yy = fromY; yy <= toY; yy++) {
-                for (int y = minY; y <= maxY; y++) {
-                    // loop through all the possible y coordinates and get the block at that location.
-                    Block blockFrom = to.getWorld().getBlockAt(to.getBlockX(), yy, to.getBlockZ());
-                    Block blockTo = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
-                    if (blockFrom.getType().isSolid() || blockTo.getType().isSolid()) {
-                        // if its solid flag and dont set a safe location
-                        safeLocation = false;
-                        getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
-                        boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                        result.set(failed, safe);
-                    }
-
-                }
-            }
-        }
-
-
-        if (safeLocation) {
-            data.setSafe(from);
-        }
-
-        if (result.failed()) {
-            return result;
-        }
-
-        // actually ascending and velocity cause.
+        // Calculate if we have slimeblock velocity and if we are actually ascending/descending.
         boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
                 .SLIMEBLOCK) && !isClimbing && !inLiquid;
         boolean hasActualVelocity = !isClimbing && !inLiquid && player.getVehicle() == null &&
                 !velocityModifier && !hasVelocity;
 
+        // reset knockback data.
         if (hasVelocity) {
-            // reset knockback.
             if (data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause.KNOCKBACK)) {
                 data.getVelocityData().setHasVelocity(false);
                 return result;
             }
         }
+
+        if ((isAscending || isDescending) && !hasVelocity) {
+            // we made a pretty big move, lets check where they went.
+            if (vertical > 0.99) {
+                // first update our safe location.
+                Location safe = data.getSafe();
+                if (safe == null) {
+                    data.setSafe(from);
+                    safe = from;
+                }
+
+                // get our locations for checking.
+                int fromY = safe.getBlockY();
+                int toY = safe.getBlockY() + 1;
+
+                int minY = Math.min(safe.getBlockY(), to.getBlockY());
+                int maxY = Math.max(safe.getBlockY(), to.getBlockY());
+
+                for (int yy = fromY; yy <= toY; yy++) {
+                    for (int y = minY; y <= maxY; y++) {
+                        // loop through all the possible y coordinates and get the block at that location.
+                        Block blockFrom = to.getWorld().getBlockAt(to.getBlockX(), yy, to.getBlockZ());
+                        Block blockTo = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
+                        if (blockFrom.getType().isSolid() || blockTo.getType().isSolid()) {
+                            // if its solid flag.
+                            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
+                            boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
+                            result.set(failed, safe);
+                        }
+
+                    }
+                }
+
+                // return right away, lets cancel this first.
+                if (result.failed()) {
+                    return result;
+                }
+            }
+        }
+
+        data.setSafe(from);
 
         if (!onGround && hasSlimeblockVelocity) {
             // make sure we're not ascending too high by checking if our velocity goes down.

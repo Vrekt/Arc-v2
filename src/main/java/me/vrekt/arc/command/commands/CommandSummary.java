@@ -1,21 +1,19 @@
 package me.vrekt.arc.command.commands;
 
 import me.vrekt.arc.Arc;
+import me.vrekt.arc.chat.ChatUtility;
 import me.vrekt.arc.check.CheatProbability;
-import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.command.Command;
-import me.vrekt.arc.violation.ViolationData;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class CommandSummary extends Command {
 
@@ -37,81 +35,50 @@ public class CommandSummary extends Command {
             return;
         }
 
-        // create inventory and an empty pane.
-        Inventory inventory = Bukkit.createInventory(null, 27, "Summary for " + user.getName());
-        ItemStack itemPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14);
 
-        ItemMeta metaPane = itemPane.getItemMeta();
-        metaPane.setDisplayName(ChatColor.RED + "");
-        itemPane.setItemMeta(metaPane);
+        player.sendMessage(ChatColor.GOLD + "" + ChatColor.STRIKETHROUGH + "----------------------------------------------------");
+        player.sendMessage(ChatColor.RED + ChatUtility.getCenteredMessage("Viewing report for " + ChatColor.GREEN + user.getName()));
+        player.sendMessage(ChatColor.GOLD + "" + ChatColor.STRIKETHROUGH + "----------------------------------------------------");
 
-        ItemStack itemPaper = new ItemStack(Material.PAPER);
-        int index = 0;
-
-        for (Check check : Arc.getCheckManager().getChecks()) {
-            CheckType type = check.getCheck();
-
-            ItemMeta metaPaper = itemPaper.getItemMeta();
-            metaPaper.setDisplayName(ChatColor.RED + "Check: " + ChatColor.GOLD + type.getCheckName());
-
-            // get violationData and add the lore.
-            ViolationData data = Arc.getViolationHandler().getViolationData(user);
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.WHITE + "Violations: " + ChatColor.RED
-                    + data.getViolationLevel(type));
-
-            metaPaper.setLore(lore);
-            itemPaper.setItemMeta(metaPaper);
-
-            // add the item
-            inventory.setItem(index++, itemPaper);
-        }
-
-        for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null) {
-                inventory.setItem(i, itemPane);
-            }
-        }
-
-        ItemStack itemApple = new ItemStack(Material.APPLE);
-        ItemStack itemSword = new ItemStack(Material.IRON_SWORD);
-        ItemStack itemBook = new ItemStack(Material.BOOK);
-
+        // get basic info about the player.
         String OP = user.isOp() ? ChatColor.RED + "true" : ChatColor.GREEN + "false";
+        String gamemode = ChatColor.GOLD + "GameMode: " + ChatColor.BLUE + StringUtils.capitalize(user.getGameMode().toString()
+                .toLowerCase());
+        String world = ChatColor.GOLD + "World: " + ChatColor.BLUE + user.getWorld().getName();
 
-        ItemMeta metaBook = itemBook.getItemMeta();
-        metaBook.setDisplayName(ChatColor.GOLD + "Player information: ");
-
-        ItemMeta metaSword = itemSword.getItemMeta();
-        metaSword.setDisplayName(ChatColor.RED + "Ban this player.");
-
-        // set their cheat probability based on the total VL.
+        // send them their total violation level
         int totalLevel = Arc.getViolationHandler().getViolationData(user).getTotalLevel();
-        CheatProbability probability = totalLevel <= 20 ? CheatProbability.NOT_LIKELY : totalLevel >= 30 ? CheatProbability.LIKELY :
-                totalLevel >= 50 ?
-                        CheatProbability.DEFINITELY : CheatProbability.NOT_LIKELY;
+        player.sendMessage(ChatUtility.getCenteredMessage(ChatColor.GREEN + "" + user.getName() + "'s total violation level: " + ChatColor.RED + totalLevel));
 
-        ItemMeta metaApple = itemApple.getItemMeta();
-        metaApple.setDisplayName(ChatColor.RED + "Probability this player is cheating: " + ChatColor.AQUA + probability.getName());
+        // append the cheatprobability.
+        CheatProbability probability = totalLevel <= 30 ? CheatProbability.NOT_LIKELY : totalLevel <= 60 ? CheatProbability.LIKELY :
+                CheatProbability.DEFINITELY;
+        player.sendMessage(ChatUtility.getCenteredMessage(ChatColor.GREEN + "Probability this player is cheating: " + ChatColor.RED +
+                probability.getName()));
 
-        // add their info to a list and set the lore.
-        List<String> info = new ArrayList<>();
-        info.add(ChatColor.GOLD + "Operator: " + OP);
-        info.add(ChatColor.GOLD + "GameMode: " + ChatColor.BLUE + user.getGameMode().toString());
-        info.add(ChatColor.GOLD + "World: " + ChatColor.BLUE + user.getWorld().getName());
+        // Send some basic stats.
+        player.sendMessage(ChatUtility.getCenteredMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GOLD
+                + "Operator: " + OP + ChatColor.DARK_GRAY + "] [" + gamemode + ChatColor.DARK_GRAY + "] [" + world + ChatColor.DARK_GRAY +
+                "]"));
 
-        // set item flags and lore.
-        metaBook.setLore(info);
-        itemBook.setItemMeta(metaBook);
+        // start displaying check info.
+        player.sendMessage(ChatColor.GOLD + "" + ChatColor.STRIKETHROUGH + "----------------------------------------------------");
 
-        itemSword.setItemMeta(metaSword);
-        itemApple.setItemMeta(metaApple);
+        Map<CheckType, Integer> checks = Arc.getViolationHandler().getViolationData(user).getViolatedChecks();
+        List<String> sorted = new ArrayList<>();
 
-        inventory.setItem(21, itemApple);
-        inventory.setItem(22, itemSword);
-        inventory.setItem(23, itemBook);
+        // get all checks we have failed and put them in a list to be sorted.
+        for (CheckType check : checks.keySet()) {
+            int violationLevel = checks.get(check);
+            String centered = ChatUtility.getCenteredMessage(ChatColor.RED + check.getCheckName() + ChatColor.GOLD + " violations: " +
+                    ChatColor.RED + violationLevel + ChatColor.GOLD + ".");
+            sorted.add(centered);
+        }
 
-        player.openInventory(inventory);
+        // sort and send.
+        sorted.sort(Comparator.comparingInt(String::length));
+        sorted.forEach(player::sendMessage);
+
     }
 
     @Override

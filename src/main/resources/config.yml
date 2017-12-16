@@ -132,7 +132,7 @@ speed:
   notify: 1
 
   # How fast can we move if we are on ice and jumping with a block above us?
-  ice_block: 0.913
+  ice_block: 1.0
 
   # How fast can we move if we are under a block and jumping?
   block: 0.6699
@@ -161,6 +161,9 @@ fastconsume:
   # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
   # indicates that we should only alert every 2 violations.
   notify: 1
+
+  # The time is takes to consume an item, (food, potions, etc)
+  consume-time: 1280
 
 criticals:
 

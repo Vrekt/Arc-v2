@@ -130,6 +130,10 @@ public class Speed extends Check {
                         result.set(checkViolation(player, "Moving too fast, onground_expected_velocity m=" + thisMove + " e=" + stepModifier));
                     }
                 } else {
+                    if (vertical > 0.41) {
+                        // we jumped but we're still onGround.
+                        expected += vertical / thisMove;
+                    }
                     if (thisMove > expected) {
                         getCheck().setCheckName("Speed " + ChatColor.GRAY + "(onGround)");
                         result.set(checkViolation(player, "Moving too fast, onground_expected m=" + thisMove + " e=" + expected));
@@ -140,7 +144,6 @@ public class Speed extends Check {
         }
 
         if (!onGround) {
-
             // if we are on a slimeblock.
             if (isOnSlimeblock) {
                 // get the jump stage
@@ -164,7 +167,7 @@ public class Speed extends Check {
             boolean hasModifier = (isOnIce || iceTime > 0) || (isOnSlimeblock || slimeblockTime > 0);
             if (!hasModifier) {
                 // get the jump stage
-                double stage = vertical == 0.0 ? 0.049 : vertical < 0.34 ? 0.08 : 0.325;
+                double stage = vertical == 0.0 ? 0.049 : vertical < 0.34 ? 0.08 : 0.3261;
                 double expected = (baseMove + stage);
 
                 // too fast, flag.

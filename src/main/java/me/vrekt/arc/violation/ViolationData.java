@@ -38,6 +38,21 @@ public class ViolationData {
     }
 
     /**
+     * @return all checks the player has failed.
+     */
+    public Map<CheckType, Integer> getViolatedChecks() {
+        final Map<CheckType, Integer> VIOLATION_INFO = new HashMap<>();
+
+        for (CheckType check : CHECK_VIOLATIONS.keySet()) {
+            int violationLevel = CHECK_VIOLATIONS.get(check);
+            if (violationLevel > 0) {
+                VIOLATION_INFO.put(check, violationLevel);
+            }
+        }
+        return VIOLATION_INFO;
+    }
+
+    /**
      * Clear violation data.
      */
     public void clearData() {

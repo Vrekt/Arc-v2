@@ -40,7 +40,6 @@ public class PacketListener implements ACheckListener {
 
                 if (data.cancelMovingPackets()) {
                     event.setCancelled(true);
-                    return;
                 }
 
                 // Update ground info.
@@ -66,7 +65,6 @@ public class PacketListener implements ACheckListener {
 
                 if (data.cancelMovingPackets()) {
                     event.setCancelled(true);
-                    return;
                 }
 
                 // Update ground info.
