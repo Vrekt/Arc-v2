@@ -120,7 +120,7 @@ public class Speed extends Check {
             }
 
             // make sure we've actually been onGround, without block jumps, etc.
-            if (groundTicks >= 5) {
+            if (groundTicks >= 5 && data.getIceTime() == 0) {
                 boolean hadModifier = from.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
                 double stepModifier = velocityModifier ? stepMax + expected : 0;
                 // no block, normal check.

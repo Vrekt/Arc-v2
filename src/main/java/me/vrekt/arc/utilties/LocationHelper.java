@@ -55,10 +55,10 @@ public class LocationHelper {
      * @return true if the block is under the player.
      */
     public static boolean hasBlock(Location location, Class comparable) {
-        LocationBit bit = new LocationBit(0.5);
+        LocationBit bit = new LocationBit(0.3);
 
         // check if were already under that block.
-        Location subtracted = location.clone().subtract(0, 0.5, 0);
+        Location subtracted = location.clone().subtract(0, 0.3, 0);
         Block subtractedBlock = subtracted.getBlock();
 
         if (subtractedBlock.getType().getData().equals(comparable)) {
@@ -66,7 +66,7 @@ public class LocationHelper {
         }
 
         for (int i = 0; i < 4; i++) {
-            Location newLocation = location.clone().add(bit.getX(), -0.5, bit.getZ());
+            Location newLocation = location.clone().add(bit.getX(), -0.3, bit.getZ());
             Block block = newLocation.getBlock();
             if (block.getType().getData().equals(comparable)) {
                 return true;
