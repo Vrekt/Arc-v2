@@ -78,13 +78,13 @@ public class Flight extends Check {
                 getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
                 result.set(checkViolation(player, "ascending too fast, ladder_ascend"), data.getPreviousLocation());
             }
+        }
 
-            // patch for instant ladder
-            if (vertical > maxAscendSpeed + 0.12) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
-                result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
-            }
-
+        // patch for instant ladder
+        double difference = vertical - maxAscendSpeed;
+        if (isAscending && isClimbing && difference > 1.0) {
+            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
+            result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
         }
 
         // descending check.
@@ -264,7 +264,7 @@ public class Flight extends Check {
         }
 
         // make sure were actually falling.
-        if (hasActualVelocity && isDescending) {
+        if (hasActualVelocity && isDescending && data.getLadderTime() <= 2) {
             int descendMoves = data.getDescendingMoves() + 1;
             data.setDescendingMoves(descendMoves);
 
