@@ -13,6 +13,7 @@ public class ViolationHandler {
 
     private final Map<Player, ViolationData> VIOLATION_DATA = new HashMap<>();
     private final List<Player> DEBUG_LISTENERS = new ArrayList<>();
+    private final List<Player> VIOLATION_MUTE = new ArrayList<>();
 
     /**
      * @param player the player
@@ -62,8 +63,10 @@ public class ViolationHandler {
         if (notify != 0 && violationLevel % notify == 0) {
             // filter a list of online players with the permission.
             Collection<Player> players =
-                    Bukkit.getOnlinePlayers().stream().filter(notifier -> notifier.hasPermission("arc.notify")).collect(Collectors
-                            .toList());
+                    Bukkit.getOnlinePlayers().stream().filter(notifier -> notifier.hasPermission("arc.notify")).filter(notifier ->
+                            !VIOLATION_MUTE.contains(notifier))
+                            .collect(Collectors
+                                    .toList());
 
             for (Player notifier : players) {
                 // if we are in the listener list, send the violation with the attached info.
@@ -134,6 +137,27 @@ public class ViolationHandler {
         if (DEBUG_LISTENERS.contains(player)) {
             DEBUG_LISTENERS.remove(player);
         }
+
+        if (VIOLATION_MUTE.contains(player)) {
+            VIOLATION_MUTE.remove(player);
+        }
+
+    }
+
+    /**
+     * Toggle alerts.
+     *
+     * @param player the player
+     */
+    public void toggleAlert(Player player) {
+        if (VIOLATION_MUTE.contains(player)) {
+            player.sendMessage(ChatColor.GREEN + "Violations have been turned on.");
+            VIOLATION_MUTE.remove(player);
+            return;
+        }
+
+        player.sendMessage(ChatColor.RED + "Violations have been turned off.");
+        VIOLATION_MUTE.add(player);
     }
 
 }

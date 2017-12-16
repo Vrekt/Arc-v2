@@ -1,5 +1,6 @@
 package me.vrekt.arc.command;
 
+import me.vrekt.arc.command.commands.CommandAlerts;
 import me.vrekt.arc.command.commands.CommandCancelBan;
 import me.vrekt.arc.command.commands.CommandDebug;
 import me.vrekt.arc.command.commands.CommandInfo;
@@ -19,7 +20,8 @@ public class CommandExecutor {
         COMMAND_LIST.add(new CommandSummary());
         COMMAND_LIST.add(new CommandDebug());
         COMMAND_LIST.add(new CommandCancelBan());
-       // COMMAND_LIST.add(new CommandReload());
+        COMMAND_LIST.add(new CommandAlerts());
+        // COMMAND_LIST.add(new CommandReload());
     }
 
     /**
