@@ -1,6 +1,7 @@
 package me.vrekt.arc.config;
 
 import org.bukkit.BanList;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Date;
@@ -14,6 +15,9 @@ public class ArcConfiguration {
     private int banTime;
 
     private int tpsLimit;
+
+    private boolean broadcastBan;
+    private String broadcastMessage;
 
     /**
      * Get the data from config file.
@@ -37,6 +41,12 @@ public class ArcConfiguration {
         }
 
         tpsLimit = config.getInt("tps-limit", tpsLimit);
+
+        broadcastBan = config.getBoolean("broadcast-ban");
+        if (broadcastBan) {
+            String message = config.getString("broadcast-message");
+            broadcastMessage = ChatColor.translateAlternateColorCodes('&', message);
+        }
 
     }
 
@@ -66,5 +76,13 @@ public class ArcConfiguration {
      */
     public int getTpsLimit() {
         return tpsLimit;
+    }
+
+    public boolean shouldBroadcastBan() {
+        return broadcastBan;
+    }
+
+    public String getBroadcastMessage() {
+        return broadcastMessage;
     }
 }

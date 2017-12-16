@@ -19,6 +19,7 @@ public class CommandExecutor {
         COMMAND_LIST.add(new CommandSummary());
         COMMAND_LIST.add(new CommandDebug());
         COMMAND_LIST.add(new CommandCancelBan());
+       // COMMAND_LIST.add(new CommandReload());
     }
 
     /**

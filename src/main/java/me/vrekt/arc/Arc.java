@@ -27,7 +27,6 @@ public class Arc extends JavaPlugin {
     private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
     private static final ViolationHandler VIOLATION_HANDLER = new ViolationHandler();
     private static final CommandExecutor COMMAND_EXECUTOR = new CommandExecutor();
-    private static final ArcConfiguration ARC_CONFIGURATION = new ArcConfiguration();
     /**
      * ARC INFO/COMPAT
      **/
@@ -37,6 +36,7 @@ public class Arc extends JavaPlugin {
     private static CheckManager checkManager;
     private static PacketListener packetListener;
     private static ArcPlayerManager arcPlayerManager;
+    private static ArcConfiguration arcConfiguration = new ArcConfiguration();
 
     /**
      * Gets called when the plugin is enabled.
@@ -59,7 +59,7 @@ public class Arc extends JavaPlugin {
 
         checkManager = new CheckManager(getConfig());
         checkManager.initializeAllChecks();
-        ARC_CONFIGURATION.read(getConfig());
+        arcConfiguration.read(getConfig());
 
         arcPlayerManager = new ArcPlayerManager();
 
@@ -69,7 +69,7 @@ public class Arc extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new MovingListener(), this);
 
-        getLogger().info("Registering TPSWatcher thread...");
+        getLogger().info("Registering TPSWatcher task..");
         new TPSWatcher().runTaskTimer(this, 0, 20);
 
         packetListener = new PacketListener();
@@ -146,7 +146,7 @@ public class Arc extends JavaPlugin {
      * @return the configuration.
      */
     public static ArcConfiguration getArcConfiguration() {
-        return ARC_CONFIGURATION;
+        return arcConfiguration;
     }
 
 }

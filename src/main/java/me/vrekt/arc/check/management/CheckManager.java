@@ -64,6 +64,39 @@ public class CheckManager {
     }
 
     /**
+     * Reload the configuration.
+     */
+    public void reload(FileConfiguration configuration) {
+        this.configuration = configuration;
+        for (CheckType check : CheckType.values()) {
+            String checkName = check.getCheckName().toLowerCase();
+
+            ConfigurationSection section = configuration.getConfigurationSection(checkName);
+            boolean isEnabled = configuration.getBoolean(checkName + ".enabled");
+
+            // if were not enabled, continue.
+            if (!isEnabled) {
+                continue;
+            }
+
+            // collect the violation levels from the config.
+            int banViolations = section.getInt("ban");
+            int cancelViolations = section.getInt("cancel-vl");
+            int notifyViolations = section.getInt("notify");
+
+            // populate the map with the new check data.
+            boolean cancelCheck = section.getBoolean("cancel");
+
+            CHECK_DATA.remove(check);
+            CheckData data = new CheckData(notifyViolations, cancelViolations, banViolations, cancelCheck, banViolations > 0);
+            CHECK_DATA.put(check, data);
+
+            Arc.getPlugin().getLogger().info("Finished getting data for check: " + checkName);
+        }
+    }
+
+
+    /**
      * Add all the checks to the map.
      */
     public void initializeAllChecks() {

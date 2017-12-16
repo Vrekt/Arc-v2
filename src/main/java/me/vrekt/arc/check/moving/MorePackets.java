@@ -5,6 +5,7 @@ import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class MorePackets extends Check {
@@ -29,6 +30,9 @@ public class MorePackets extends Check {
             if (flyingPackets > kickThreshold || movingPackets > kickThreshold) {
                 // we are sending over the limit, kick.
                 Bukkit.getScheduler().runTaskLater(Arc.getPlugin(), () -> {
+                    // broadcast to staff.
+                    Bukkit.broadcast(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] " + ChatColor.BLUE
+                            + player.getName() + ChatColor.WHITE + " was kicked for sending too many packets. ", "arc.notify");
                     // prevent async player kick.
                     player.kickPlayer("You are sending too many packets.");
                 }, 5);

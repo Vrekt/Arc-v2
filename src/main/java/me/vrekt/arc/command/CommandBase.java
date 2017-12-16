@@ -56,8 +56,8 @@ public class CommandBase implements org.bukkit.command.CommandExecutor {
         player.sendMessage("");
         player.sendMessage(ChatColor.GRAY + "/arc debug \n" + ChatColor.GOLD
                 + "Toggle debug information to be attached to the violation.");
-        player.sendMessage("");
-        player.sendMessage(ChatColor.GRAY + "/arc gui \n" + ChatColor.GOLD + "Allows you to manage Arc from a GUI.");
+       // player.sendMessage("");
+      //  player.sendMessage(ChatColor.GRAY + "/arc reload \n" + ChatColor.GOLD + "Reloads the configuration file.");
         player.sendMessage("");
         player.sendMessage(ChatColor.GRAY + "/arc summary <player> \n" + ChatColor.GOLD
                 + "Allows you to view information about a player.");

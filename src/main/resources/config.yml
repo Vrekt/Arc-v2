@@ -7,6 +7,12 @@ ban-type: NAME
 # How many days should we ban the player for? 'null' indicates a permanent ban.
 ban-days: 30
 
+# Should we broadcast the ban to all players on the server?
+broadcast-ban: true
+
+# The message to broadcast when somebody gets banned.
+broadcast-message: "&c%player% &awas banned for cheating"
+
 # At what TPS should Arc start disabling checks to help the TPS improve?
 tps-limit: 17
 
@@ -35,13 +41,13 @@ flight:
   max-jump: 0.42
 
   # Whats the max amount of time the player can hover for?
-  max-hover-time: 1
+  max-hover-time: 10
 
   # How fast can we climb a ladder?
-  ascend-ladder: 0.1176000022888184
+  ascend-ladder: 0.1176000022889
 
   # How fast can we descend on a ladder?
-  descend-ladder: 0.1500000000000036
+  descend-ladder: 0.15000000000000698
 
   # The max time a player can ascend for.
   ascend-time: 7

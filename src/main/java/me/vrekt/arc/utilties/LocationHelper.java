@@ -1,5 +1,6 @@
 package me.vrekt.arc.utilties;
 
+import me.vrekt.arc.Arc;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,7 +19,7 @@ public class LocationHelper {
      * @return whether or not were on the ground. true if we are.
      */
     public static boolean isOnGround(Location location, double vertical) {
-        LocationBit bit = new LocationBit(0.5);
+        LocationBit bit = new LocationBit(0.3);
 
         // get two different block locations.
         Location subtractedGround = location.clone().subtract(0, 0.5, 0);
@@ -35,10 +36,11 @@ public class LocationHelper {
         }
         // expand the location and determine if we are being supported by a block.
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newGround = location.clone().add(bit.getX(), -0.5, bit.getZ());
             Block block = newGround.getBlock();
-            if (block.getType().isSolid()) {
+            if (block.getType().isSolid() && !hasClimbable) {
+                Arc.getPlugin().getLogger().info("T: " + block.getType().toString());
                 return true;
             }
 
@@ -65,7 +67,7 @@ public class LocationHelper {
             return true;
         }
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newLocation = location.clone().add(bit.getX(), -0.3, bit.getZ());
             Block block = newLocation.getBlock();
             if (block.getType().getData().equals(comparable)) {
@@ -95,7 +97,7 @@ public class LocationHelper {
             return true;
         }
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newLocation = location.clone().add(bit.getX(), -vertical, bit.getZ());
             Block block = newLocation.getBlock();
             if (block.getType().getData().equals(comparable)) {
@@ -120,7 +122,7 @@ public class LocationHelper {
             return true;
         }
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newLocation = location.clone().add(bit.getX(), 2, bit.getZ());
             Block block = newLocation.getBlock();
             if (block.getType().isSolid()) {
@@ -142,7 +144,7 @@ public class LocationHelper {
         }
 
         LocationBit bit = new LocationBit(0.1);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newLocation = location.clone().add(bit.getX(), -0.06, bit.getZ());
             Block block = newLocation.getBlock();
             if (block.getType() == Material.LADDER || block.getType() == Material.VINE) {
@@ -205,7 +207,25 @@ public class LocationHelper {
      * @return if we are on a slab.
      */
     public static boolean isOnSlab(Location location) {
-        return hasBlock(location, Step.class);
+        LocationBit bit = new LocationBit(0.5);
+
+        // check if were already under that block.
+        Location subtracted = location.clone().subtract(0, 0.1, 0);
+        Block subtractedBlock = subtracted.getBlock();
+
+        if (subtractedBlock.getType().getData().equals(Step.class)) {
+            return true;
+        }
+
+        for (int i = 1; i <= 4; i++) {
+            Location newLocation = location.clone().add(bit.getX(), -0.1, bit.getZ());
+            Block block = newLocation.getBlock();
+            if (block.getType().getData().equals(Step.class)) {
+                return true;
+            }
+            bit.shift(i);
+        }
+        return false;
     }
 
     /**
@@ -253,7 +273,7 @@ public class LocationHelper {
         }
 
         LocationBit bit = new LocationBit(0.5);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             Location newLocation = location.clone().add(bit.getX(), -1, bit.getZ());
             Block block = newLocation.getBlock();
             if (MaterialHelper.isFence(block.getType()) || MaterialHelper.isFenceGate(block.getType())) {

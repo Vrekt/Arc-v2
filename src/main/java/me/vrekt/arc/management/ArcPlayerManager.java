@@ -38,26 +38,38 @@ public class ArcPlayerManager {
                 + player.getName() + ChatColor.WHITE + " is scheduled to be banned in " + ChatColor.RED + time
                 + ChatColor.WHITE + " seconds.", "arc.notify");
 
+        long timeScheduled = System.currentTimeMillis();
+
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (BAN_QUEUE.contains(uuid)) {
-                    // get the ban data and ban the player.
-                    String reason = ChatColor.RED + "You have been banned for cheating.";
+                if (!BAN_QUEUE.contains(uuid)) {
+                    this.cancel();
+                }
+                if (System.currentTimeMillis() - timeScheduled >= time * 1000) {
+                    if (BAN_QUEUE.contains(uuid)) {
+                        // get the ban data and ban the player.
+                        String reason = ChatColor.RED + "You have been banned for cheating.";
 
-                    Date date = Arc.getArcConfiguration().getBanDate();
-                    BanList.Type type = Arc.getArcConfiguration().getBanType();
-                    Bukkit.getBanList(type).addBan(name, reason, date, null);
+                        Date date = Arc.getArcConfiguration().getBanDate();
+                        BanList.Type type = Arc.getArcConfiguration().getBanType();
+                        Bukkit.getBanList(type).addBan(name, reason, date, null);
 
-                    if (player.isOnline()) {
-                        player.kickPlayer(reason);
+                        if (Arc.getArcConfiguration().shouldBroadcastBan()) {
+                            String message = Arc.getArcConfiguration().getBroadcastMessage().replace("%player%", player.getName());
+                            Bukkit.broadcastMessage(message);
+                        }
+
+                        if (player.isOnline()) {
+                            player.kickPlayer(reason);
+                        }
+
+                        // remove the player.
+                        BAN_QUEUE.remove(uuid);
                     }
-
-                    // remove the player.
-                    BAN_QUEUE.remove(uuid);
                 }
             }
-        }.runTaskLater(Arc.getPlugin(), time * 20);
+        }.runTaskTimer(Arc.getPlugin(), 0, 20);
 
     }
 

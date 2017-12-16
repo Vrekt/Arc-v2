@@ -10,13 +10,15 @@ import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Step;
 import org.bukkit.potion.PotionEffectType;
 
 public class Flight extends Check {
 
-    private double maxAscendSpeed, maxDescendSpeed, maxHeight = 0.0;
-    private int maxAscendTime = 0;
+    private double maxAscendSpeed, maxDescendSpeed, maxHeight, maxHover;
+    private int maxAscendTime;
 
     public Flight() {
         super(CheckType.FLIGHT);
@@ -24,15 +26,13 @@ public class Flight extends Check {
         maxAscendSpeed = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "ascend-ladder");
         maxDescendSpeed = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "descend-ladder");
         maxHeight = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "max-jump");
+        maxHover = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "max-hover-time");
 
         maxAscendTime = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "ascend-time");
     }
 
     private boolean hoverCheck(Player player, MovingData data) {
         result.reset();
-        if (data.isOnGround()) {
-            data.setAirTicks(0);
-        }
 
         // Check if we are actually hovering.
         double vertical = data.getVerticalSpeed();
@@ -41,7 +41,7 @@ public class Flight extends Check {
         // TODO: Calculate if we're climbing only once.
         if (actuallyHovering) {
             // check how long we've been hovering for.
-            if (data.getAirTicks() >= 10) {
+            if (data.getAirTicks() >= maxHover) {
                 // too long, flag.
                 getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Hover)");
                 result.set(checkViolation(player, "hovering off the ground, hover"));
@@ -66,10 +66,9 @@ public class Flight extends Check {
         boolean isClimbing = data.isClimbing();
 
         int airTicks = data.getAirTicks();
-        int ascendingMoves = data.getAscendingMoves();
 
         // make sure we're actually in the air.
-        boolean actuallyInAir = airTicks >= 20 && ascendingMoves > 4 && player.getFallDistance() == 0.0;
+        boolean actuallyInAir = airTicks >= 20;
 
         // fastladder check, make sure were ascending, climbing and in-air.
         if (isAscending && isClimbing && actuallyInAir) {
@@ -105,14 +104,17 @@ public class Flight extends Check {
 
         Location ground = data.getGroundLocation();
         Location from = data.getPreviousLocation();
+        if (ground == null) {
+            ground = from;
+        }
         Location to = data.getCurrentLocation();
 
         boolean isAscending = data.isAscending();
         boolean isDescending = data.isDescending();
         boolean isClimbing = data.isClimbing();
 
-        boolean velocityModifier = LocationHelper.isOnSlab(to) || LocationHelper.isOnStair(to);
-
+        boolean slab = to.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
+        boolean velocityModifier = (LocationHelper.isOnSlab(to) || slab) || LocationHelper.isOnStair(to);
         boolean inLiquid = LocationHelper.isInLiquid(to);
         boolean onGround = data.isOnGround();
 
