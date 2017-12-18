@@ -49,6 +49,7 @@ public class MovingData {
     private int iceTime, slimeblockTime, ladderTime;
 
     private VelocityData velocityData = new VelocityData();
+    private long lastGameModeChange;
 
     public Location getSetback() {
         return setback;
@@ -254,4 +255,11 @@ public class MovingData {
         this.ladderTime = ladderTime;
     }
 
+    public long getLastGameModeChange() {
+        return lastGameModeChange;
+    }
+
+    public void setLastGameModeChange(long lastGameModeChange) {
+        this.lastGameModeChange = lastGameModeChange;
+    }
 }

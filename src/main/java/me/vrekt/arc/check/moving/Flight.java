@@ -8,6 +8,7 @@ import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -110,6 +111,10 @@ public class Flight extends Check {
             ground = from;
         }
 
+
+        double lastVertical = data.getLastVerticalSpeed();
+        double vertical = data.getVerticalSpeed();
+
         boolean onGround = data.isOnGround();
         boolean isAscending = data.isAscending();
         boolean isDescending = data.isDescending();
@@ -119,6 +124,9 @@ public class Flight extends Check {
         boolean isOnStep = (LocationHelper.isOnSlab(to) || isOnSlab) || LocationHelper.isOnStair(to);
         boolean isOnSlimeblock = LocationHelper.isOnSlimeblock(to);
         boolean isInLiquid = LocationHelper.isInLiquid(to);
+        boolean isOnTrapdoor = to.getBlock().getRelative(BlockFace.SELF).getType() == Material.TRAP_DOOR;
+        boolean isUnderBlock = LocationHelper.isUnderBlock(to);
+        boolean velocityBoost = isOnTrapdoor && isUnderBlock;
 
         boolean hasVelocity = data.getVelocityData().hasVelocity();
         double velocity = data.getVelocityData().getCurrentVelocity();
@@ -126,9 +134,6 @@ public class Flight extends Check {
 
         boolean wasVerticalMove = (isAscending || isDescending);
         boolean validVerticalMove = player.getVehicle() == null && !hasVelocity && !isOnStep && !isClimbing;
-
-        double lastVertical = data.getLastVerticalSpeed();
-        double vertical = data.getVerticalSpeed();
 
         int ascendingMoves = data.getAscendingMoves();
         int descendingMoves = data.getDescendingMoves();
@@ -145,6 +150,7 @@ public class Flight extends Check {
 
             if (hasVelocity) {
                 hasVelocity = false;
+                data.getVelocityData().setHasVelocity(false);
                 validVerticalMove = wasVerticalMove && player.getVehicle() == null && !isOnStep;
             }
 
@@ -182,16 +188,18 @@ public class Flight extends Check {
         // update our climbing data.
         if (isClimbing) {
             if (wasVerticalMove) {
-                data.setLadderTime(8);
+                data.setLadderTime(14);
+            } else {
+                data.setLadderTime(6);
             }
-            data.setLadderTime(4);
         } else {
-            data.setLadderTime(ladderTime > 0 ? ladderTime - 1 : 0);
+            ladderTime = ladderTime >= 0 ? ladderTime - 1 : 0;
+            data.setLadderTime(ladderTime);
         }
 
         if (wasVerticalMove) {
             // start with the vclip check, we want this first to make sure nobody is clipping through anything.
-            if (vertical >= 0.99) {
+            if (vertical >= 0.99 && validVerticalMove && !isOnSlimeblock) {
                 // update our safe location.
                 Location safeLocation = data.getSafe();
                 if (safeLocation == null) {
@@ -200,24 +208,19 @@ public class Flight extends Check {
                 }
 
                 // get our locations for checking.
-                int fromY = safeLocation.getBlockY();
-                int toY = safeLocation.getBlockY() + 1;
                 int minY = Math.min(safeLocation.getBlockY(), to.getBlockY());
-                int maxY = Math.max(safeLocation.getBlockY(), to.getBlockY());
-
-                for (int yy = fromY; yy <= toY; yy++) {
-                    for (int y = minY; y <= maxY; y++) {
-                        // loop through all the possible y coordinates and get the block at that location.
-                        Block blockFrom = to.getWorld().getBlockAt(to.getBlockX(), yy, to.getBlockZ());
-                        Block blockTo = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
-                        if (blockFrom.getType().isSolid() || blockTo.getType().isSolid()) {
-                            // if its solid flag.
-                            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
-                            boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                            result.set(failed, safeLocation);
-                        }
+                int maxY = Math.max(safeLocation.getBlockY(), to.getBlockY() + 1);
+                for (int y = minY; y <= maxY; y++) {
+                    // loop through all the possible y coordinates and get the block at that location.
+                    Block blockTo = to.getWorld().getBlockAt(to.getBlockX(), y, to.getBlockZ());
+                    if (blockTo.getType().isSolid()) {
+                        // if its solid flag.
+                        getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
+                        boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
+                        result.set(failed, safeLocation);
                     }
                 }
+
             }
 
             // reset our safe location.
@@ -274,7 +277,7 @@ public class Flight extends Check {
             // check how we are ascending.
             boolean walkedOnFence = LocationHelper.walkedOnFence(to);
             double distanceFrom = LocationHelper.distanceVertical(ground, to);
-            if (validVerticalMove && isAscending && !walkedOnFence && ladderTime <= 2 && !isOnSlimeblock) {
+            if (validVerticalMove && isAscending && !walkedOnFence && ladderTime == 0 && !isOnSlimeblock) {
                 // valid move, check.
                 // first get our distance we have traveled.
                 if (distanceFrom >= maxAscendDistance) {
@@ -298,7 +301,7 @@ public class Flight extends Check {
             }
 
             // check how we are descending.
-            if (validVerticalMove && isDescending && ladderTime <= 2 && !isOnSlimeblock) {
+            if (validVerticalMove && isDescending && ladderTime == 0 && !isOnSlimeblock && !velocityBoost) {
                 double glideDelta = Math.abs(vertical - lastVertical);
 
                 // check if we are descending at the same speed.

@@ -6,9 +6,11 @@ import me.vrekt.arc.data.combat.FightData;
 import me.vrekt.arc.data.inventory.InventoryData;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.utilties.LocationHelper;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -54,6 +56,15 @@ public class PlayerListener implements Listener {
         }
         data.setSetback(player.getLocation());
 
+    }
+
+    @EventHandler
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+        GameMode gameMode = event.getPlayer().getGameMode();
+        // check if we switch to survival from an exempt GameMode and update.
+        if ((gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) && event.getNewGameMode() == GameMode.SURVIVAL) {
+            MovingData.getData(event.getPlayer()).setLastGameModeChange(System.currentTimeMillis());
+        }
     }
 
 }

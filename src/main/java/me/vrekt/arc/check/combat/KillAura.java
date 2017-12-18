@@ -41,7 +41,8 @@ public class KillAura extends Check {
             Vector lastLocation = last.getLocation().toVector();
             double angleToLast = lastLocation.subtract(playerLocation).angle(player.getLocation().getDirection());
             double angleDifference = Math.abs(angleToLast - angle);
-            if (angleDifference > maxAngle) {
+            double distanceDifference = LocationHelper.distance(last.getLocation(), entity.getLocation());
+            if (angleDifference > maxAngle && distanceDifference <= maxReach) {
                 getCheck().setCheckName("Kill Aura " + ChatColor.GRAY + "(Multi)");
                 result.set(checkViolation(player, "Angle difference greater than allowed. a=" + angleDifference + " e=" + maxAngle));
             }

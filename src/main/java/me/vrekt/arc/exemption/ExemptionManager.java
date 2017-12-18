@@ -36,16 +36,14 @@ public class ExemptionManager {
         }
 
         // iterate through the array of checks that need to be exempted for if we are flying.
-        MovingData data = MovingData.getData(player);
         for (CheckType element : EXEMPT_BECAUSE_FLYING) {
             if (!(element.equals(check))) {
                 continue;
             }
 
-            boolean damageExemption;
-            damageExemption = player.getNoDamageTicks() > 6;
-
-            hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getAllowFlight() || player.isFlying() || damageExemption;
+            hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR || player.getAllowFlight
+                    () || player
+                    .isFlying();
             break;
         }
 
@@ -60,7 +58,8 @@ public class ExemptionManager {
      * @return true if we are exempted, false if not.
      */
     private boolean checkCommonExemptions(Player player, CheckType check) {
-        return hasTimeExemption(player, check) || hasPermission(player) || hasPermanentExemption(player, check);
+        return hasTimeExemption(player, check) || hasPermission(player) || hasPermanentExemption(player, check) ||
+                gameModeChangeExemption(player);
     }
 
     /**
@@ -71,6 +70,18 @@ public class ExemptionManager {
     private boolean hasTimeExemption(Player player, CheckType check) {
         ExemptionData data = EXEMPTION_DATA.getOrDefault(player, null);
         return data != null && data.isCheckExempted(check);
+    }
+
+    /**
+     * @param player the player
+     * @return if we are exempt because of a recent GameMode change.
+     */
+    private boolean gameModeChangeExemption(Player player) {
+        MovingData movingData = MovingData.getData(player);
+        if (movingData.getLastGameModeChange() == 0) {
+            return false;
+        }
+        return (System.currentTimeMillis() - movingData.getLastGameModeChange()) <= 1500;
     }
 
     /**

@@ -82,6 +82,10 @@ public class Speed extends Check {
         }
 
         if (onGround) {
+            double velocity = data.getVelocityData().getCurrentVelocity();
+            if (velocity > 0.0789) {
+                return result.failed();
+            }
             // Check if we have a block above us.
             boolean hasBlock = LocationHelper.isUnderBlock(to);
 
@@ -154,6 +158,10 @@ public class Speed extends Check {
 
 
         if (!onGround) {
+            double velocity = data.getVelocityData().getCurrentVelocity();
+            if (velocity > 0.0789) {
+                return result.failed();
+            }
             // if we are on a slimeblock.
             if (isOnSlimeblock) {
                 // get the jump stage
