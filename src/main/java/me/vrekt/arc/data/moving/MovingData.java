@@ -253,4 +253,5 @@ public class MovingData {
     public void setLadderTime(int ladderTime) {
         this.ladderTime = ladderTime;
     }
+
 }

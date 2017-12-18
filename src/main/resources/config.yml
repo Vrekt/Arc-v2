@@ -52,6 +52,9 @@ flight:
   # The max time a player can ascend for.
   ascend-time: 7
 
+  # The max distance we can ascend.
+  ascend-distance: 1.4
+
 morepackets:
 
   # Is the check enabled?

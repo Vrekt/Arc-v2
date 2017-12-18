@@ -28,7 +28,7 @@ public class CheckResult {
             return;
         }
         this.hasFailed = hasFailed;
-        if (hasFailed) {
+        if (hasFailed && cancelLocation == null) {
             cancelLocation = setback;
         }
     }

@@ -1,10 +1,14 @@
 package me.vrekt.arc.data.moving;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VelocityData {
     private double lastVelocity;
     private double currentVelocity;
     private boolean hasVelocity;
-    private VelocityCause velocityCause;
+
+    private final List<Double> slimeblockVelocity = new ArrayList<>();
 
     public double getLastVelocity() {
         return lastVelocity;
@@ -30,15 +34,15 @@ public class VelocityData {
         this.hasVelocity = hasVelocity;
     }
 
-    public VelocityCause getVelocityCause() {
-        return velocityCause;
+    public void addVelocity(double difference) {
+        slimeblockVelocity.add(difference);
     }
 
-    public void setVelocityCause(VelocityCause velocityCause) {
-        this.velocityCause = velocityCause;
+    public void clear() {
+        slimeblockVelocity.clear();
     }
 
-    public enum VelocityCause {
-        SLIMEBLOCK, TELEPORT, KNOCKBACK
+    public List<Double> getSlimeblockVelocity() {
+        return slimeblockVelocity;
     }
 }

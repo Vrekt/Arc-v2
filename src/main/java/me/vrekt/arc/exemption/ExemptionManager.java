@@ -43,7 +43,6 @@ public class ExemptionManager {
             }
 
             boolean damageExemption;
-            data.getVelocityData().setHasVelocity(false);
             damageExemption = player.getNoDamageTicks() > 6;
 
             hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getAllowFlight() || player.isFlying() || damageExemption;

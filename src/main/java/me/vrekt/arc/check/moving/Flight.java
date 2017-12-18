@@ -5,7 +5,6 @@ import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckResult;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
-import me.vrekt.arc.data.moving.VelocityData;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,9 +14,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.material.Step;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
+
 public class Flight extends Check {
 
-    private double maxAscendSpeed, maxDescendSpeed, maxHeight, maxHover;
+    private double maxAscendSpeed, maxDescendSpeed, maxHeight, maxHover, maxAscendDistance;
     private int maxAscendTime;
 
     public Flight() {
@@ -27,6 +28,7 @@ public class Flight extends Check {
         maxDescendSpeed = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "descend-ladder");
         maxHeight = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "max-jump");
         maxHover = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "max-hover-time");
+        maxAscendDistance = Arc.getCheckManager().getValueDouble(CheckType.FLIGHT, "ascend-distance");
 
         maxAscendTime = Arc.getCheckManager().getValueInt(CheckType.FLIGHT, "ascend-time");
     }
@@ -38,7 +40,6 @@ public class Flight extends Check {
         double vertical = data.getVerticalSpeed();
         boolean actuallyHovering = data.getLastVerticalSpeed() == 0.0 && vertical == 0.0 && player.getVehicle() == null;
 
-        // TODO: Calculate if we're climbing only once.
         if (actuallyHovering) {
             // check how long we've been hovering for.
             if (data.getAirTicks() >= maxHover) {
@@ -68,13 +69,13 @@ public class Flight extends Check {
         int airTicks = data.getAirTicks();
 
         // make sure we're actually in the air.
-        boolean actuallyInAir = airTicks >= 20;
+        boolean actuallyInAir = airTicks >= 20 && data.getLadderTime() == 8;
 
         // fastladder check, make sure were ascending, climbing and in-air.
         if (isAscending && isClimbing && actuallyInAir) {
             // check if we are climbing too fast.
             if (vertical > maxAscendSpeed) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(FastLadder)");
                 result.set(checkViolation(player, "ascending too fast, ladder_ascend"), data.getPreviousLocation());
             }
         }
@@ -82,7 +83,7 @@ public class Flight extends Check {
         // patch for instant ladder
         double difference = vertical - maxAscendSpeed;
         if (isAscending && isClimbing && difference > 1.0) {
-            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
+            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(FastLadder)");
             result.set(checkViolation(player, "ascending too fast, ladder_instant"), data.getPreviousLocation());
         }
 
@@ -90,7 +91,7 @@ public class Flight extends Check {
         if (isDescending && isClimbing && actuallyInAir) {
             // too fast, flag.
             if (vertical > maxDescendSpeed) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ladder)");
+                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(FastLadder)");
                 result.set(checkViolation(player, "descending too fast, ladder_descend"), data.getPreviousLocation());
             }
         }
@@ -102,99 +103,107 @@ public class Flight extends Check {
     public CheckResult check(Player player, MovingData data) {
         result.reset();
 
-        Location ground = data.getGroundLocation();
         Location from = data.getPreviousLocation();
+        Location to = data.getCurrentLocation();
+        Location ground = data.getGroundLocation();
         if (ground == null) {
             ground = from;
         }
-        Location to = data.getCurrentLocation();
 
+        boolean onGround = data.isOnGround();
         boolean isAscending = data.isAscending();
         boolean isDescending = data.isDescending();
         boolean isClimbing = data.isClimbing();
 
-        boolean slab = to.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
-        boolean velocityModifier = (LocationHelper.isOnSlab(to) || slab) || LocationHelper.isOnStair(to);
-        boolean inLiquid = LocationHelper.isInLiquid(to);
-        boolean onGround = data.isOnGround();
-
-        double vertical = data.getVerticalSpeed();
-        boolean hasSlimeblock = LocationHelper.isOnSlimeblock(to);
+        boolean isOnSlab = to.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
+        boolean isOnStep = (LocationHelper.isOnSlab(to) || isOnSlab) || LocationHelper.isOnStair(to);
+        boolean isOnSlimeblock = LocationHelper.isOnSlimeblock(to);
+        boolean isInLiquid = LocationHelper.isInLiquid(to);
 
         boolean hasVelocity = data.getVelocityData().hasVelocity();
         double velocity = data.getVelocityData().getCurrentVelocity();
+        double lastVelocity = data.getVelocityData().getLastVelocity();
+
+        boolean wasVerticalMove = (isAscending || isDescending);
+        boolean validVerticalMove = player.getVehicle() == null && !hasVelocity && !isOnStep && !isClimbing;
+
+        double lastVertical = data.getLastVerticalSpeed();
+        double vertical = data.getVerticalSpeed();
+
         int ascendingMoves = data.getAscendingMoves();
+        int descendingMoves = data.getDescendingMoves();
+        int ladderTime = data.getLadderTime();
 
+        // if we are on ground lets reset some data.
         if (onGround) {
-            // reset data.
-            data.setAscendingMoves(0);
-            data.setDescendingMoves(0);
+            ascendingMoves = 0;
+            descendingMoves = 0;
 
-            if (hasSlimeblock) {
-                // update velocity stuff.
-                data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.SLIMEBLOCK);
-                data.getVelocityData().setHasVelocity(true);
+            data.setAscendingMoves(ascendingMoves);
+            data.setDescendingMoves(descendingMoves);
+            data.getVelocityData().clear();
+
+            if (hasVelocity) {
+                hasVelocity = false;
+                validVerticalMove = wasVerticalMove && player.getVehicle() == null && !isOnStep;
             }
-            hasVelocity = data.getVelocityData().hasVelocity();
+
+            if (isOnSlimeblock) {
+                // we landed on a slimeblock, lets update our velocity if out vertical has increased.
+                if (vertical > 0.0 && !data.wasOnGround()) {
+                    data.getVelocityData().setHasVelocity(true);
+                    hasVelocity = true;
+                    validVerticalMove = false;
+                }
+            }
 
         }
 
+        // update our ascending data and reset our descending data.
         if (isAscending) {
-            data.setDescendingMoves(0);
+            descendingMoves = 0;
+            data.setDescendingMoves(descendingMoves);
             if (!isClimbing) {
-                ascendingMoves += 1;
+                ascendingMoves++;
                 data.setAscendingMoves(ascendingMoves);
             }
         }
 
+        // update our descending data and reset the ascending data, also account for slimeblock velocity.
         if (isDescending) {
-            data.setAscendingMoves(0);
-            data.getVelocityData().setHasVelocity(false);
+            ascendingMoves = 0;
+            data.setAscendingMoves(ascendingMoves);
+
+            descendingMoves++;
+            data.setDescendingMoves(descendingMoves);
+            data.getVelocityData().clear();
         }
 
-        // Update ladder data.
+        // update our climbing data.
         if (isClimbing) {
-            if (isDescending || isAscending) {
+            if (wasVerticalMove) {
                 data.setLadderTime(8);
-            } else {
-                data.setLadderTime(4);
             }
+            data.setLadderTime(4);
         } else {
-            int ladderTime = data.getLadderTime();
             data.setLadderTime(ladderTime > 0 ? ladderTime - 1 : 0);
         }
 
-
-        // Calculate if we have slimeblock velocity and if we are actually ascending/descending.
-        boolean hasSlimeblockVelocity = hasVelocity && data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause
-                .SLIMEBLOCK) && !isClimbing && !inLiquid;
-        boolean hasActualVelocity = !isClimbing && !inLiquid && player.getVehicle() == null &&
-                !velocityModifier && !hasVelocity;
-
-        // reset knockback data.
-        if (hasVelocity) {
-            if (data.getVelocityData().getVelocityCause().equals(VelocityData.VelocityCause.KNOCKBACK)) {
-                data.getVelocityData().setHasVelocity(false);
-                return result;
-            }
-        }
-
-        if ((isAscending || isDescending) && !hasVelocity) {
-            // we made a pretty big move, lets check where they went.
-            if (vertical > 0.99) {
-                // first update our safe location.
-                Location safe = data.getSafe();
-                if (safe == null) {
+        if (wasVerticalMove) {
+            // start with the vclip check, we want this first to make sure nobody is clipping through anything.
+            if (vertical >= 0.99) {
+                // update our safe location.
+                Location safeLocation = data.getSafe();
+                if (safeLocation == null) {
                     data.setSafe(from);
-                    safe = from;
+                    safeLocation = from;
                 }
 
                 // get our locations for checking.
-                int fromY = safe.getBlockY();
-                int toY = safe.getBlockY() + 1;
-
-                int minY = Math.min(safe.getBlockY(), to.getBlockY());
-                int maxY = Math.max(safe.getBlockY(), to.getBlockY());
+                int fromY = safeLocation.getBlockY();
+                int toY = safeLocation.getBlockY() + 1;
+                int minY = Math.min(safeLocation.getBlockY(), to.getBlockY());
+                int maxY = Math.max(safeLocation.getBlockY(), to.getBlockY());
 
                 for (int yy = fromY; yy <= toY; yy++) {
                     for (int y = minY; y <= maxY; y++) {
@@ -205,89 +214,119 @@ public class Flight extends Check {
                             // if its solid flag.
                             getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Vertical Clip)");
                             boolean failed = checkViolation(player, "clipped through a solid block, vclip_solid");
-                            result.set(failed, safe);
+                            result.set(failed, safeLocation);
+                        }
+                    }
+                }
+            }
+
+            // reset our safe location.
+            if (!result.failed()) {
+                data.setSafe(to);
+            }
+
+
+            if (!onGround) {
+                if (hasVelocity && isAscending && ladderTime == 0) {
+                    // we were on a slimeblock, watch our velocity.
+                    data.getVelocityData().addVelocity(velocity);
+                    if (data.getVelocityData().getSlimeblockVelocity().size() >= maxAscendTime) {
+                        List<Double> velocityData = data.getVelocityData().getSlimeblockVelocity();
+
+                        // get our "last" velocities.
+                        double lastChange = Math.abs(velocity - lastVelocity);
+                        double lastVelocityMove = lastVelocity;
+                        int validMoves = 0;
+
+                        // loop through all of the recent moves.
+                        for (double move : velocityData) {
+                            if (move < lastVelocityMove) {
+                                // get the difference and add a valid move if we are decreasing in velocity.
+                                double difference = Math.abs(move - lastVelocityMove);
+                                if (difference < lastChange) {
+                                    validMoves++;
+                                }
+                                lastChange = difference;
+                            }
+                            lastVelocityMove = move;
                         }
 
+                        // no valid moves, flag.
+                        if (validMoves <= 3) {
+                            getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
+                            result.set(checkViolation(player, "ascending too high after slimeblock velocity, sb_velocity_watch"));
+                        }
+                        data.getVelocityData().clear();
                     }
                 }
 
-                // return right away, lets cancel this first.
-                if (result.failed()) {
-                    return result;
+                if (isInLiquid) {
+                    // check if the client is onGround, if so flag.
+                    boolean ccGround = data.isPositionClientOnGround();
+                    if (ccGround && vertical > 0.0) {
+                        getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Jesus)");
+                        result.set(checkViolation(player, "walking on water, ccground_liquid"));
+                    }
                 }
-            }
-        }
 
-        data.setSafe(from);
-
-        if (!onGround && hasSlimeblockVelocity) {
-            // make sure we're not ascending too high by checking if our velocity goes down.
-            double last = data.getVelocityData().getLastVelocity();
-            if (velocity > last && ascendingMoves > maxAscendTime) {
-                // were ascending too high, flag.
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
-                result.set(checkViolation(player, "ascending too high, ascending_slimeblock"));
             }
 
-        }
+            // check how we are ascending.
+            boolean walkedOnFence = LocationHelper.walkedOnFence(to);
+            double distanceFrom = LocationHelper.distanceVertical(ground, to);
+            if (validVerticalMove && isAscending && !walkedOnFence && ladderTime <= 2 && !isOnSlimeblock) {
+                // valid move, check.
+                // first get our distance we have traveled.
+                if (distanceFrom >= maxAscendDistance) {
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
+                    result.set(checkViolation(player, "ascending too high, ascending_distance"));
+                }
 
-        // check for jesus.
-        if ((isAscending || isDescending) && inLiquid && !onGround) {
-            boolean ccGround = data.isPositionClientOnGround();
-            if (ccGround && vertical != 0.0) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Jesus)");
-                result.set(checkViolation(player, "walking on water, ccground_liquid"));
-            }
-        }
+                // ascending for too long.
+                if (ascendingMoves > maxAscendTime) {
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
+                    result.set(checkViolation(player, "ascending for too long, ascending_time"));
+                }
 
-        // Make sure we're not jumping too high or for too long.
-        boolean hasFence = LocationHelper.walkedOnFence(to);
-        if (hasActualVelocity && isAscending && !hasFence) {
-            double distance = LocationHelper.distanceVertical(ground, to);
-            // distance is pretty high, that's not right.
-            if (distance >= 1.4) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
-                result.set(checkViolation(player, "ascending too high, ascending_distance"));
-            }
+                // ascending too fast.
+                double max = getMaxJump(player);
+                if (vertical > max) {
+                    getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
+                    result.set(checkViolation(player, "Ascending too fast, ascending_vertical"));
+                }
 
-            // check ascend time.
-            if (ascendingMoves > maxAscendTime) {
-                // too long, flag.
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
-                result.set(checkViolation(player, "ascending for too long, ascending_move"));
             }
 
-            // jumping too high
-            if (vertical > getMaxJump(player)) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Ascension)");
-                result.set(checkViolation(player, "vertical too high, vertical_jump"), from);
-            }
+            // check how we are descending.
+            if (validVerticalMove && isDescending && ladderTime <= 2 && !isOnSlimeblock) {
+                double glideDelta = Math.abs(vertical - lastVertical);
 
-        }
-
-        // make sure were actually falling.
-        if (hasActualVelocity && isDescending && data.getLadderTime() <= 2) {
-            int descendMoves = data.getDescendingMoves() + 1;
-            data.setDescendingMoves(descendMoves);
-
-            double lastVertical = data.getLastVerticalSpeed();
-            double glideDelta = Math.abs(vertical - lastVertical);
-
-            // were descending at the same speed, that isnt right.
-            if (glideDelta == 0.0) {
-                getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
-                result.set(checkViolation(player, "vertical not changing, descend_delta"));
-            }
-            double glideDifference = vertical - lastVertical;
-            double distance = LocationHelper.distanceVertical(ground, to);
-
-            // TODO: improve later, could probably be bypassed.
-            if (distance > 1.6 && data.getLadderTime() == 0) {
-                if (glideDifference > 0.07 || glideDifference < 0.05) {
+                // check if we are descending at the same speed.
+                if (glideDelta == 0.0) {
                     getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
                     result.set(checkViolation(player, "vertical not changing, descend_difference"));
                 }
+
+                // check the speed of how we are descending.
+                int airTicks = data.getAirTicks();
+                if (distanceFrom > 1.6 && descendingMoves > 2) {
+                    double expected;
+                    // calculate our expected difference based on air.
+                    if (airTicks > 100) {
+                        expected = -0.9908 * 1e-6 * Math.pow(airTicks, 2) + 3.4538 * 1e-7 * airTicks + 0.0189;
+                    } else {
+                        expected = 5.4246 * 1e-6 * Math.pow(airTicks, 2) - 0.0011 * airTicks + 0.0659;
+                    }
+
+                    double difference = Math.abs(glideDelta - expected);
+                    if (difference > 0.02 || difference < 0.001) {
+                        getCheck().setCheckName("Flight " + ChatColor.GRAY + "(Glide)");
+                        result.set(checkViolation(player, "vertical not expected, descend_expected"));
+                    }
+                }
+
             }
+
         }
 
         getCheck().setCheckName("Flight");

@@ -6,8 +6,6 @@ import me.vrekt.arc.check.combat.Criticals;
 import me.vrekt.arc.check.combat.KillAura;
 import me.vrekt.arc.check.combat.Regeneration;
 import me.vrekt.arc.data.combat.FightData;
-import me.vrekt.arc.data.moving.MovingData;
-import me.vrekt.arc.data.moving.VelocityData;
 import me.vrekt.arc.listener.ACheckListener;
 import me.vrekt.arc.utilties.FightHelper;
 import org.bukkit.entity.Entity;
@@ -48,17 +46,6 @@ public class FightListener implements Listener, ACheckListener {
 
         Entity attacked = event.getEntity();
         Entity damager = event.getDamager();
-
-        if (attacked instanceof Player) {
-            // update our velocity data since our player got hit.
-            Player player = (Player) attacked;
-            if (player.getVelocity().length() == 0) {
-                return;
-            }
-            MovingData data = MovingData.getData(player);
-            data.getVelocityData().setHasVelocity(true);
-            data.getVelocityData().setVelocityCause(VelocityData.VelocityCause.KNOCKBACK);
-        }
 
         // check if the player attacked an entity.
         if (damager instanceof Player) {

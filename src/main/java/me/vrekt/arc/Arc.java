@@ -20,8 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-
 public class Arc extends JavaPlugin {
 
     private static final ExemptionManager EXEMPTION_MANAGER = new ExemptionManager();
@@ -46,10 +44,7 @@ public class Arc extends JavaPlugin {
 
         // read/create the configuration.
         getLogger().info("Reading configuration...");
-        File config = new File(getDataFolder(), "config.yml");
-        if (!config.exists()) {
-            saveDefaultConfig();
-        }
+        saveDefaultConfig();
 
         getLogger().info("Checking spigot version....");
         if (Bukkit.getBukkitVersion().contains("1.7")) {

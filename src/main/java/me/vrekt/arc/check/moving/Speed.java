@@ -122,7 +122,7 @@ public class Speed extends Check {
             // make sure we've actually been onGround, without block jumps, etc.
             if (groundTicks >= 5 && data.getIceTime() == 0) {
                 boolean hadModifier = from.getBlock().getRelative(BlockFace.DOWN).getType().getData().equals(Step.class);
-                double stepModifier = velocityModifier ? stepMax + expected : 0;
+                double stepModifier = velocityModifier ? stepMax + expected : expected;
                 // no block, normal check.
                 if (velocityModifier || hadModifier) {
                     if (thisMove > stepModifier) {
@@ -141,7 +141,17 @@ public class Speed extends Check {
                 }
 
             }
+
+            // ice speed
+            if (isOnIce && groundTicks >= 3) {
+                if (thisMove > expected + 0.01) {
+                    getCheck().setCheckName("Speed " + ChatColor.GRAY + "(onGround)");
+                    result.set(checkViolation(player, "Moving too fast, onground_expected_ice m=" + thisMove + " e=" + expected));
+                }
+            }
+
         }
+
 
         if (!onGround) {
             // if we are on a slimeblock.

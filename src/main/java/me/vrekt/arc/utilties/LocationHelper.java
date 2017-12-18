@@ -1,6 +1,5 @@
 package me.vrekt.arc.utilties;
 
-import me.vrekt.arc.Arc;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,7 +39,6 @@ public class LocationHelper {
             Location newGround = location.clone().add(bit.getX(), -0.5, bit.getZ());
             Block block = newGround.getBlock();
             if (block.getType().isSolid() && !hasClimbable) {
-                Arc.getPlugin().getLogger().info("T: " + block.getType().toString());
                 return true;
             }
 
