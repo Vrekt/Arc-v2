@@ -1,25 +1,37 @@
 package me.vrekt.arc.listener.packet;
 
+import com.comphenix.packetwrapper.WrapperPlayClientBlockPlace;
+import com.comphenix.packetwrapper.WrapperPlayClientFlying;
+import com.comphenix.packetwrapper.WrapperPlayClientHeldItemSlot;
+import com.comphenix.packetwrapper.WrapperPlayClientPosition;
+import com.comphenix.packetwrapper.WrapperPlayClientPositionLook;
+import com.comphenix.packetwrapper.WrapperPlayClientUseEntity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.CheckType;
+import me.vrekt.arc.check.combat.KillAura;
+import me.vrekt.arc.check.inventory.AutoHeal;
 import me.vrekt.arc.check.moving.MorePackets;
 import me.vrekt.arc.data.combat.FightData;
+import me.vrekt.arc.data.inventory.InventoryData;
 import me.vrekt.arc.data.moving.MovingData;
 import me.vrekt.arc.listener.ACheckListener;
-import me.vrekt.arc.wrappers.WrapperPlayClientFlying;
-import me.vrekt.arc.wrappers.WrapperPlayClientPosition;
-import me.vrekt.arc.wrappers.WrapperPlayClientPositionLook;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class PacketListener implements ACheckListener {
     private final MorePackets MORE_PACKETS = (MorePackets) Arc.getCheckManager().getCheck(CheckType.MOREPACKETS);
+    private final KillAura KILL_AURA = (KillAura) Arc.getCheckManager().getCheck(CheckType.KILLAURA);
+    private final AutoHeal AUTO_HEAL = (AutoHeal) CHECK_MANAGER.getCheck(CheckType.AUTOHEAL);
+
     private boolean listening = false;
 
     /**
@@ -104,6 +116,51 @@ public class PacketListener implements ACheckListener {
             }
         });
 
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.HELD_ITEM_SLOT) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+                InventoryData data = InventoryData.getData(player);
+                WrapperPlayClientHeldItemSlot itemSlotChange = new WrapperPlayClientHeldItemSlot(event.getPacket());
+                int slot = itemSlotChange.getSlot();
+                ItemStack item = player.getInventory().getItem(slot);
+                if (item != null && item.getType() == Material.MUSHROOM_SOUP) {
+                    data.setLastItemSwitch(System.currentTimeMillis());
+                }
+
+            }
+        });
+
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.BLOCK_PLACE) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+                InventoryData data = InventoryData.getData(player);
+                WrapperPlayClientBlockPlace blockPlace = new WrapperPlayClientBlockPlace(event.getPacket());
+                ItemStack item = blockPlace.getHeldItem();
+
+                if (item != null && item.getType() == Material.MUSHROOM_SOUP) {
+                    AUTO_HEAL.check(data, player);
+                }
+            }
+        });
+
+        manager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Client.USE_ENTITY) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+                FightData data = FightData.getData(player);
+                WrapperPlayClientUseEntity useEntity = new WrapperPlayClientUseEntity(event.getPacket());
+                if (useEntity.getType() == EnumWrappers.EntityUseAction.ATTACK) {
+                    // we attacked, lets update our data and check.
+                    data.setAttackPackets(data.getAttackPackets() + 1);
+                    boolean failed = KILL_AURA.checkFrequency(data, player);
+                    if (failed) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        });
 
     }
 

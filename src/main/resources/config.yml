@@ -224,4 +224,27 @@ killaura:
   # Max amount of attacks allowed every second.
   max-attacks: 16
 
+  # Max amount of attack packets allowed every second
+  max-attack-packets: 20
+
+autoheal:
+  # Is the check enabled?
+  enabled: true
+
+  # Should this check cancel? Cancelling this check will teleport the player back to their original location.
+  cancel: true
+
+  # The violation level at which to cancel. If you want the check to cancel everytime set this to 0.
+  cancel-vl: 0
+
+  # The violation level at which to ban the player. Set this to '-1' if you wish to disable banning.
+  ban: -1
+
+  # The violation level at which to notify the players with the 'arc.violations' permission.
+  # Its set to alert when the violation level is able to be divided evenly. '1' indicates notify everytime, '2'
+  # indicates that we should only alert every 2 violations.
+  notify: 1
+
+  # The max time we can switch to and use soup.
+  max-soup-time: 150
 

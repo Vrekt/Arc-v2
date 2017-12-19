@@ -36,6 +36,8 @@ public class FightData {
 
     private int totalAttacks;
     private long lastAttackCheck;
+    private int attackPackets;
+    private long lastFrequencyCheck;
 
     private Entity attackedEntity;
     private Entity lastAttackedEntity;
@@ -86,5 +88,21 @@ public class FightData {
 
     public void setLastAttackCheck(long lastAttackCheck) {
         this.lastAttackCheck = lastAttackCheck;
+    }
+
+    public int getAttackPackets() {
+        return attackPackets;
+    }
+
+    public void setAttackPackets(int attackPackets) {
+        this.attackPackets = attackPackets;
+    }
+
+    public long getLastFrequencyCheck() {
+        return lastFrequencyCheck;
+    }
+
+    public void setLastFrequencyCheck(long lastFrequencyCheck) {
+        this.lastFrequencyCheck = lastFrequencyCheck;
     }
 }

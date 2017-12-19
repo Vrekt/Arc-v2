@@ -32,7 +32,7 @@ public class MorePackets extends Check {
                 Bukkit.getScheduler().runTaskLater(Arc.getPlugin(), () -> {
                     // broadcast to staff.
                     Bukkit.broadcast(ChatColor.DARK_GRAY + "[" + ChatColor.RED + "Arc" + ChatColor.DARK_GRAY + "] " + ChatColor.BLUE
-                            + player.getName() + ChatColor.WHITE + " was kicked for sending too many packets. ", "arc.notify");
+                            + player.getName() + ChatColor.WHITE + " was kicked for sending too many packets. ", "arc.violations");
                     // prevent async player kick.
                     player.kickPlayer("You are sending too many packets.");
                 }, 5);

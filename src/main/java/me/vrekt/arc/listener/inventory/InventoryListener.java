@@ -22,8 +22,7 @@ import org.bukkit.inventory.ItemStack;
 public class InventoryListener implements Listener, ACheckListener {
     private final FastConsume FAST_CONSUME = (FastConsume) CHECK_MANAGER.getCheck(CheckType.FASTCONSUME);
 
-
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onConsume(PlayerItemConsumeEvent event) {
         Player player = event.getPlayer();
         InventoryData data = InventoryData.getData(player);
@@ -34,6 +33,7 @@ public class InventoryListener implements Listener, ACheckListener {
             boolean cancel = FAST_CONSUME.check(player, data);
             event.setCancelled(cancel);
         }
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

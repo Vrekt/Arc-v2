@@ -133,7 +133,7 @@ public class Flight extends Check {
         double lastVelocity = data.getVelocityData().getLastVelocity();
 
         boolean wasVerticalMove = (isAscending || isDescending);
-        boolean validVerticalMove = player.getVehicle() == null && !hasVelocity && !isOnStep && !isClimbing;
+        boolean validVerticalMove = player.getVehicle() == null && !hasVelocity && !isOnStep && !isClimbing && !isInLiquid;
 
         int ascendingMoves = data.getAscendingMoves();
         int descendingMoves = data.getDescendingMoves();
@@ -277,7 +277,7 @@ public class Flight extends Check {
             // check how we are ascending.
             boolean walkedOnFence = LocationHelper.walkedOnFence(to);
             double distanceFrom = LocationHelper.distanceVertical(ground, to);
-            if (validVerticalMove && isAscending && !walkedOnFence && ladderTime == 0 && !isOnSlimeblock) {
+            if (validVerticalMove && isAscending && !walkedOnFence && ladderTime == 0) {
                 // valid move, check.
                 // first get our distance we have traveled.
                 if (distanceFrom >= maxAscendDistance) {

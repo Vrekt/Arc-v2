@@ -13,7 +13,7 @@ import org.bukkit.util.Vector;
 public class KillAura extends Check {
 
     private double maxAngle, maxReach;
-    private int maxSwingTime, maxAttacks;
+    private int maxSwingTime, maxAttacks, maxAttackPackets;
 
     public KillAura() {
         super(CheckType.KILLAURA);
@@ -22,10 +22,11 @@ public class KillAura extends Check {
         maxSwingTime = Arc.getCheckManager().getValueInt(CheckType.KILLAURA, "max-swing-time");
         maxReach = Arc.getCheckManager().getValueDouble(CheckType.KILLAURA, "max-reach");
         maxAttacks = Arc.getCheckManager().getValueInt(CheckType.KILLAURA, "max-attacks");
+        maxAttackPackets = Arc.getCheckManager().getValueInt(CheckType.KILLAURA, "max-attack-packets");
 
     }
 
-    public boolean check(Player player, FightData data) {
+    public boolean check(FightData data, Player player) {
         result.reset();
 
         Entity last = data.getLastAttackedEntity();
@@ -36,7 +37,7 @@ public class KillAura extends Check {
         Vector entityLocation = entity.getLocation().toVector();
         double angle = entityLocation.subtract(playerLocation).angle(player.getLocation().getDirection());
 
-        if (last != null && !last.isDead() && !entity.equals(last)) {
+        if (last != null && !entity.equals(last)) {
             // check the angle between the two entities
             Vector lastLocation = last.getLocation().toVector();
             double angleToLast = lastLocation.subtract(playerLocation).angle(player.getLocation().getDirection());
@@ -88,6 +89,26 @@ public class KillAura extends Check {
 
         getCheck().setCheckName("KillAura");
         return result.failed();
+    }
+
+    public boolean checkFrequency(FightData data, Player player) {
+        if (data.getLastAttackCheck() == 0) {
+            data.setLastAttackCheck(System.currentTimeMillis());
+            return false;
+        }
+
+        long time = System.currentTimeMillis() - data.getLastAttackCheck();
+        if (time >= 1000) {
+            data.setLastAttackCheck(System.currentTimeMillis());
+            int totalPackets = data.getAttackPackets();
+            if (totalPackets > maxAttackPackets) {
+                data.setAttackPackets(0);
+                getCheck().setCheckName("Kill Aura " + ChatColor.GRAY + "(Speed)");
+                return checkViolation(player, "Attacking too fast a=" + totalPackets + " e=" + maxAttackPackets);
+            }
+        }
+
+        return false;
     }
 
 }

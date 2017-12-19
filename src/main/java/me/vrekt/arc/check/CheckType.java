@@ -13,7 +13,8 @@ public enum CheckType {
     FASTCONSUME(CheckCategory.INVENTORY, "FastConsume"),
     FLIGHT_17(CheckCategory.MOVEMENT, "Flight"),
     SPEED_17(CheckCategory.MOVEMENT, "Speed"),
-    KILLAURA(CheckCategory.FIGHT, "KillAura");
+    KILLAURA(CheckCategory.FIGHT, "KillAura"),
+    AUTOHEAL(CheckCategory.INVENTORY, "Auto Heal");
 
     private CheckCategory cat;
     private String checkName;

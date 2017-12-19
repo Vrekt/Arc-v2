@@ -14,13 +14,13 @@ repositories {
     mavenCentral()
 
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'http://repo.dmulloy2.net/nexus/repository/public/' }
+    maven { url "http://repo.dmulloy2.net/content/groups/public/" }
 
 }
 
 dependencies {
     compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:+'
+    compileOnly files('libs/ProtocolLib.jar')
 }
 
 processResources {

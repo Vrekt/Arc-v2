@@ -70,7 +70,7 @@ public class FightListener implements Listener, ACheckListener {
             // make sure we can check direction.
             boolean canCheckKillAura = Arc.getCheckManager().canCheckPlayer(player, CheckType.KILLAURA);
             if (canCheckKillAura) {
-                boolean cancel = KILL_AURA.check(player, data);
+                boolean cancel = KILL_AURA.check(data, player);
                 if (cancel) {
                     event.setCancelled(true);
                 }
