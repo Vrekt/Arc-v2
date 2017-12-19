@@ -154,9 +154,12 @@ public class PacketListener implements ACheckListener {
                 if (useEntity.getType() == EnumWrappers.EntityUseAction.ATTACK) {
                     // we attacked, lets update our data and check.
                     data.setAttackPackets(data.getAttackPackets() + 1);
-                    boolean failed = KILL_AURA.checkFrequency(data, player);
-                    if (failed) {
-                        event.setCancelled(true);
+                    boolean canCheckKillAura = Arc.getCheckManager().canCheckPlayer(player, CheckType.KILLAURA);
+                    if (canCheckKillAura) {
+                        boolean failed = KILL_AURA.checkFrequency(data, player);
+                        if (failed) {
+                            event.setCancelled(true);
+                        }
                     }
                 }
             }
