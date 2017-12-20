@@ -198,7 +198,8 @@ public class LocationHelper {
      */
     public static boolean isOnSlimeblock(Location location) {
         return location.getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK
-                || location.getBlock().getRelative(0, -2, 0).getType() == Material.SLIME_BLOCK;
+                || location.getBlock().getRelative(0, -2, 0).getType() == Material.SLIME_BLOCK || location.getBlock().getRelative
+                (0, -1, 0).getType() == Material.SLIME_BLOCK;
     }
 
     /**

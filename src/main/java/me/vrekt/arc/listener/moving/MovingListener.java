@@ -27,7 +27,7 @@ public class MovingListener implements Listener, ACheckListener {
     private final Speed SPEED = (Speed) CHECK_MANAGER.getCheck(CheckType.SPEED);
     private final Speed17 SPEED_17 = (Speed17) CHECK_MANAGER.getCheck(CheckType.SPEED_17);
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(PlayerMoveEvent event) {
         boolean compatibility = Arc.COMPATIBILITY;
 
