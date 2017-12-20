@@ -70,7 +70,7 @@ public class Flight extends Check {
         int airTicks = data.getAirTicks();
 
         // make sure we're actually in the air.
-        boolean actuallyInAir = airTicks >= 20 && data.getLadderTime() == 8;
+        boolean actuallyInAir = airTicks >= 20 && data.getLadderTime() >= 8;
 
         // fastladder check, make sure were ascending, climbing and in-air.
         if (isAscending && isClimbing && actuallyInAir) {
