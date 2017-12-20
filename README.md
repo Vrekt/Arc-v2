@@ -8,6 +8,10 @@ Arc is currently nowhere near finished. If you wish to contribute or help me out
 Arc requires your server to be running java 8 to ensure the best performance.
 Arc uses [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) for packet level checks. This allows more accurate and advanced checks. Please download the latest version of ProtocolLib.
 
+Since ProtocolLib's maven reop is not working for the moment, please use the right ProtocolLib for your version:
+1.8+: Latest release (https://www.spigotmc.org/resources/protocollib.1997/)
+1.7.10: https://dev.bukkit.org/projects/protocollib/files/795545
+
 # Contributing
 To build with gradle:
 ```
