@@ -63,7 +63,6 @@ public class Arc extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new MovingListener(), this);
-        getServer().getPluginManager().registerEvents(new BlockListener(), this);
 
         getLogger().info("Registering TPSWatcher task..");
         new TPSWatcher().runTaskTimer(this, 0, 20);

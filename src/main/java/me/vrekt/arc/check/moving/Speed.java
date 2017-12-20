@@ -82,10 +82,6 @@ public class Speed extends Check {
         }
 
         if (onGround) {
-            double velocity = data.getVelocityData().getCurrentVelocity();
-            if (velocity > 0.0789) {
-                return result.failed();
-            }
             // Check if we have a block above us.
             boolean hasBlock = LocationHelper.isUnderBlock(to);
 
@@ -122,6 +118,7 @@ public class Speed extends Check {
                     }
                 }
             }
+
 
             // make sure we've actually been onGround, without block jumps, etc.
             if (groundTicks >= 5 && data.getIceTime() == 0) {
