@@ -62,8 +62,14 @@ public class PlayerListener implements Listener {
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         GameMode gameMode = event.getPlayer().getGameMode();
         // check if we switch to survival from an exempt GameMode and update.
-        if ((gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) && event.getNewGameMode() == GameMode.SURVIVAL) {
-            MovingData.getData(event.getPlayer()).setLastGameModeChange(System.currentTimeMillis());
+        if (Arc.COMPATIBILITY) {
+            if ((gameMode == GameMode.CREATIVE && event.getNewGameMode() == GameMode.SURVIVAL)) {
+                MovingData.getData(event.getPlayer()).setLastGameModeChange(System.currentTimeMillis());
+            }
+        } else {
+            if ((gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) && event.getNewGameMode() == GameMode.SURVIVAL) {
+                MovingData.getData(event.getPlayer()).setLastGameModeChange(System.currentTimeMillis());
+            }
         }
     }
 

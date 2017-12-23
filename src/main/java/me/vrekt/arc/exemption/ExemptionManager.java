@@ -41,9 +41,16 @@ public class ExemptionManager {
                 continue;
             }
 
-            hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR || player.getAllowFlight
-                    () || player
-                    .isFlying();
+            if (Arc.COMPATIBILITY) {
+                hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getAllowFlight
+                        () || player
+                        .isFlying();
+            } else {
+                hasExemption = player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR || player
+                        .getAllowFlight
+                                () || player
+                        .isFlying();
+            }
             break;
         }
 

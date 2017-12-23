@@ -7,18 +7,31 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class TPSWatcher extends BukkitRunnable {
 
-    private final ReflectionTick TICKS_PER_SECOND = new ReflectionTick();
     private long lastTickCheck = System.currentTimeMillis();
 
-    private boolean hasDisabledChecks = false;
+    private long second, currentTime;
+    private int tickCount, tpsIndex;
+    private double tps = 0.0;
     private double[] previousTPS = new double[4];
-    private int tpsIndex = 0;
+
+    private boolean hasDisabledChecks = false;
 
     @Override
     public void run() {
+
+        long now = System.currentTimeMillis();
+        second = (now / 1000);
+
+        if (currentTime == second) {
+            tickCount++;
+        } else {
+            currentTime = second;
+            tps = (tps == 0 ? tickCount : ((tps + tickCount) / 2));
+            tickCount = 0;
+        }
+
         if (System.currentTimeMillis() - lastTickCheck >= 10000) {
             lastTickCheck = System.currentTimeMillis();
-            double tps = TICKS_PER_SECOND.getTPS();
             tps = Math.min(tps, 20);
 
             // check out TPS.

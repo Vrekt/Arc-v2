@@ -4,6 +4,8 @@ import me.vrekt.arc.Arc;
 import me.vrekt.arc.check.Check;
 import me.vrekt.arc.check.CheckType;
 import me.vrekt.arc.data.moving.MovingData;
+import me.vrekt.arc.data.moving.VelocityData;
+import me.vrekt.arc.utilties.ConnectionUtility;
 import me.vrekt.arc.utilties.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.material.Step;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 public class Speed extends Check {
 
@@ -44,6 +47,8 @@ public class Speed extends Check {
         double thisMove = LocationHelper.distanceHorizontal(from, to);
         double baseMove = getBaseMoveSpeed(player);
         double vertical = data.getVerticalSpeed();
+
+        int playerPing = ConnectionUtility.getPlayerPing(player);
 
         // cancel large movements.
         if (thisMove > 8) {
@@ -153,12 +158,7 @@ public class Speed extends Check {
 
         }
 
-
         if (!onGround) {
-            double velocity = data.getVelocityData().getCurrentVelocity();
-            if (velocity > 0.0789) {
-                return result.failed();
-            }
             // if we are on a slimeblock.
             if (isOnSlimeblock) {
                 // get the jump stage
@@ -185,13 +185,27 @@ public class Speed extends Check {
                 double stage = vertical == 0.0 ? 0.049 : vertical < 0.34 ? 0.08 : 0.3261;
                 double expected = (baseMove + stage);
 
+                VelocityData velocityData = data.getVelocityData();
+                playerPing = Math.min(playerPing, 300); // cap the ping.
+
+                Vector velocity = velocityData.getRecentVelocity(playerPing);
+                player.sendMessage("PING: " + playerPing);
+
+                if (velocity != null) {
+                    double length = velocity.lengthSquared() + stage;
+                    double expLength = expected * length;
+                    expected = getBaseMoveSpeed(player) + expLength;
+                    player.sendMessage("E: " + expected);
+                    velocityData.removeVelocity(velocity);
+                }
+
                 // too fast, flag.
                 if (thisMove > expected) {
                     getCheck().setCheckName("Speed " + ChatColor.GRAY + "(BunnyHop)");
-                    result.set(checkViolation(player, "Moving too fast, offground_expected m=" + thisMove + " e=" + expected));
+                    result.set(checkViolation(player, "Moving too fast, offground_expected m=" +
+                            thisMove + " e=" + expected));
                 }
             }
-
         }
 
         // if we didnt fail set our setback.

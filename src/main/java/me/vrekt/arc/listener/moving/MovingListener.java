@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerVelocityEvent;
 
 public class MovingListener implements Listener, ACheckListener {
 
@@ -155,6 +156,13 @@ public class MovingListener implements Listener, ACheckListener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onVelocity(PlayerVelocityEvent event) {
+        Player player = event.getPlayer();
+        MovingData data = MovingData.getData(player);
+        data.getVelocityData().addVelocityTime(event.getVelocity());
     }
 
 }
